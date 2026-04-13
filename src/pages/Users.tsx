@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import {
   Users as UsersIcon,
   UserPlus,
@@ -16,6 +16,7 @@ import { Input } from '@/components/ui/Input'
 import { Badge } from '@/components/ui/Badge'
 import { toast } from 'sonner'
 import { supabase } from '@/lib/supabase'
+import { useMultiRealtime, REALTIME } from '@/hooks/useRealtime'
 
 interface Admin {
   id: number
@@ -24,10 +25,15 @@ interface Admin {
 
 export function Users() {
   const { users, addUser, removeUser, refetch: refetchUsers } = useApprovedUsers()
-  const { requests, approveRequest, denyRequest, deleteRequest } = useAccessRequests()
+  const {
+    requests,
+    approveRequest,
+    denyRequest,
+    deleteRequest,
+    refetch: refetchRequests,
+  } = useAccessRequests()
   const [admins, setAdmins] = useState<Admin[]>([])
   const [email, setEmail] = useState('')
-  const [name, setName] = useState('')
   const [submitting, setSubmitting] = useState(false)
 
   const pendingRequests = requests.filter((r) => r.status === 'pending')
@@ -38,14 +44,22 @@ export function Users() {
     (u) => !adminEmailSet.has(u.email.toLowerCase())
   )
 
-  useEffect(() => {
-    supabase
-      .from('admins')
-      .select('id, email')
-      .then(({ data }) => {
-        if (data) setAdmins(data)
-      })
+  const loadAdmins = useCallback(async () => {
+    const { data } = await supabase.from('admins').select('id, email')
+    if (data) setAdmins(data)
   }, [])
+
+  useEffect(() => {
+    void loadAdmins()
+  }, [loadAdmins])
+
+  const refreshUsersPage = useCallback(() => {
+    void refetchUsers()
+    void refetchRequests()
+    void loadAdmins()
+  }, [refetchUsers, refetchRequests, loadAdmins])
+
+  useMultiRealtime(REALTIME.usersAdmin, refreshUsersPage, true)
 
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -68,13 +82,12 @@ export function Users() {
     }
 
     setSubmitting(true)
-    const { error } = await addUser(trimmedEmail, name)
+    const { error } = await addUser(trimmedEmail)
     if (error) {
       toast.error('Erro ao adicionar usuário')
     } else {
       toast.success('Usuário aprovado!')
       setEmail('')
-      setName('')
     }
     setSubmitting(false)
   }
@@ -183,23 +196,14 @@ export function Users() {
           Adicione o email da conta Google do usuário para dar acesso de edição.
         </p>
 
-        <div className="grid sm:grid-cols-2 gap-4">
-          <Input
-            id="user_email"
-            label="Email (Google) *"
-            type="email"
-            placeholder="usuario@gmail.com"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-          <Input
-            id="user_name"
-            label="Nome (opcional)"
-            placeholder="Nome do usuário"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
-        </div>
+        <Input
+          id="user_email"
+          label="Email (Google) *"
+          type="email"
+          placeholder="usuario@gmail.com"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
 
         <Button type="submit" disabled={submitting}>
           <UserPlus size={16} />

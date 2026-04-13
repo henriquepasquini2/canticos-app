@@ -1,3 +1,4 @@
+import { useCallback } from 'react'
 import { NavLink } from 'react-router-dom'
 import {
   LayoutDashboard,
@@ -12,6 +13,7 @@ import {
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useSuggestions } from '@/hooks/useSuggestions'
+import { useMultiRealtime, REALTIME } from '@/hooks/useRealtime'
 
 interface SidebarProps {
   collapsed: boolean
@@ -29,7 +31,13 @@ const navItems = [
 ]
 
 export function Sidebar({ collapsed, onToggle }: SidebarProps) {
-  const { pendingCount } = useSuggestions()
+  const { pendingCount, refetch: refetchSuggestions } = useSuggestions()
+
+  const refreshSuggestionBadge = useCallback(() => {
+    void refetchSuggestions()
+  }, [refetchSuggestions])
+
+  useMultiRealtime(REALTIME.suggestions, refreshSuggestionBadge, true)
 
   return (
     <aside

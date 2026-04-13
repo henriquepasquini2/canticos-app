@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import {
   format,
@@ -15,13 +15,20 @@ import {
 import { ptBR } from 'date-fns/locale'
 import { ChevronLeft, ChevronRight, ExternalLink } from 'lucide-react'
 import { useSundays } from '@/hooks/useSundays'
+import { useMultiRealtime, REALTIME } from '@/hooks/useRealtime'
 import { Badge } from '@/components/ui/Badge'
 import { formatSongTitle, DriveLink } from '@/components/songs/SongName'
 import { cn } from '@/lib/utils'
 
 export function Calendar() {
   const [currentMonth, setCurrentMonth] = useState(new Date())
-  const { sundays } = useSundays()
+  const { sundays, refetch: refetchSundays } = useSundays()
+
+  const refreshCalendar = useCallback(() => {
+    void refetchSundays()
+  }, [refetchSundays])
+
+  useMultiRealtime(REALTIME.sundaysAndLinks, refreshCalendar, true)
 
   const sundayMap = useMemo(() => {
     const map = new Map<string, typeof sundays[0]>()

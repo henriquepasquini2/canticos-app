@@ -1,3 +1,4 @@
+import { useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import {
   Library,
@@ -11,6 +12,7 @@ import {
 import { useSongStats } from '@/hooks/useSongs'
 import { useRecentSundays, useUpcomingSundays } from '@/hooks/useSundays'
 import { useSuggestions } from '@/hooks/useSuggestions'
+import { useMultiRealtime, REALTIME } from '@/hooks/useRealtime'
 import { formatDateLong, getNextSunday } from '@/lib/utils'
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
@@ -45,9 +47,23 @@ function StatCard({
 
 export function Dashboard() {
   const stats = useSongStats()
-  const { sundays: upcoming } = useUpcomingSundays(1)
-  const { sundays: recent } = useRecentSundays(4)
-  const { pendingCount } = useSuggestions()
+  const { sundays: upcoming, refetch: refetchUpcoming } = useUpcomingSundays(1)
+  const { sundays: recent, refetch: refetchRecent } = useRecentSundays(4)
+  const { pendingCount, refetch: refetchSuggestions } = useSuggestions()
+
+  const refreshDashboard = useCallback(() => {
+    void stats.refetch()
+    void refetchUpcoming()
+    void refetchRecent()
+    void refetchSuggestions()
+  }, [
+    stats.refetch,
+    refetchUpcoming,
+    refetchRecent,
+    refetchSuggestions,
+  ])
+
+  useMultiRealtime(REALTIME.dashboard, refreshDashboard, true)
 
   const nextSunday = getNextSunday()
   const nextSundayStr = format(nextSunday, 'yyyy-MM-dd')

@@ -1,6 +1,8 @@
+import { useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowRight, Music, ExternalLink } from 'lucide-react'
 import { useUpcomingSundays, useRecentSundays } from '@/hooks/useSundays'
+import { useMultiRealtime, REALTIME } from '@/hooks/useRealtime'
 import { formatDateLong, getNextSunday } from '@/lib/utils'
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
@@ -8,8 +10,15 @@ import { formatSongTitle, DriveLink } from '@/components/songs/SongName'
 import { format } from 'date-fns'
 
 export function PublicHome() {
-  const { sundays: upcoming } = useUpcomingSundays(1)
-  const { sundays: recent } = useRecentSundays(6)
+  const { sundays: upcoming, refetch: refetchUpcoming } = useUpcomingSundays(1)
+  const { sundays: recent, refetch: refetchRecent } = useRecentSundays(6)
+
+  const refreshHome = useCallback(() => {
+    void refetchUpcoming()
+    void refetchRecent()
+  }, [refetchUpcoming, refetchRecent])
+
+  useMultiRealtime(REALTIME.home, refreshHome, true)
 
   const nextSunday = getNextSunday()
   const nextSundayStr = format(nextSunday, 'yyyy-MM-dd')

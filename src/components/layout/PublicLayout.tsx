@@ -12,19 +12,17 @@ export function PublicLayout() {
   const { request, submitRequest } = useMyAccessRequest(
     !isApproved && user ? user.email : undefined
   )
-  const [message, setMessage] = useState('')
   const [submitting, setSubmitting] = useState(false)
 
   const showBanner = !!user && !isApproved && !isAdmin
 
   const handleRequest = async () => {
     setSubmitting(true)
-    const { error } = await submitRequest(message)
+    const { error } = await submitRequest()
     if (error) {
       toast.error('Erro ao enviar pedido')
     } else {
       toast.success('Pedido enviado! O administrador será notificado.')
-      setMessage('')
     }
     setSubmitting(false)
   }
@@ -154,25 +152,21 @@ export function PublicLayout() {
           <div className="max-w-6xl mx-auto">
             {!request ? (
               // No request yet - show form
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex items-center gap-2 flex-1 min-w-0">
                   <ShieldQuestion size={18} className="text-accent-light shrink-0" />
                   <p className="text-sm text-text-secondary">
                     Participa do louvor? Peça acesso para editar a programação.
                   </p>
                 </div>
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    placeholder="Seu nome (opcional)"
-                    value={message}
-                    onChange={(e) => setMessage(e.target.value)}
-                    className="flex-1 sm:w-48 rounded-lg border border-border bg-bg-input px-3 py-1.5 text-sm text-text-primary placeholder:text-text-muted outline-none focus:border-accent-light"
-                  />
-                  <Button size="sm" onClick={handleRequest} disabled={submitting}>
-                    {submitting ? 'Enviando...' : 'Pedir acesso'}
-                  </Button>
-                </div>
+                <Button
+                  size="sm"
+                  onClick={handleRequest}
+                  disabled={submitting}
+                  className="shrink-0 self-start sm:self-center"
+                >
+                  {submitting ? 'Enviando...' : 'Pedir acesso'}
+                </Button>
               </div>
             ) : request.status === 'pending' ? (
               // Request pending

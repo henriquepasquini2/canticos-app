@@ -10,7 +10,7 @@ import { Search, Music, Save, AlertTriangle, Plus, ExternalLink, Trash2 } from '
 import { useSongsWithStats } from '@/hooks/useSongs'
 import { useSunday } from '@/hooks/useSundays'
 import { useComments } from '@/hooks/useComments'
-import { useRealtime } from '@/hooks/useRealtime'
+import { useMultiRealtime, REALTIME } from '@/hooks/useRealtime'
 import { DraggableSong } from './DraggableSong'
 import { Button } from '@/components/ui/Button'
 import { Badge } from '@/components/ui/Badge'
@@ -46,8 +46,13 @@ export function ScheduleBuilder({ date }: ScheduleBuilderProps) {
   const [saving, setSaving] = useState(false)
   const serverSongIdsRef = useRef<string>('[]')
 
-  useRealtime('sunday_songs', refetch)
-  useRealtime('comments', refetchComments, !!sunday?.id)
+  const refreshScheduleData = useCallback(() => {
+    void refetch()
+    void refetchSongs()
+    void refetchComments()
+  }, [refetch, refetchSongs, refetchComments])
+
+  useMultiRealtime(REALTIME.scheduleBuilder, refreshScheduleData, !!date)
 
   useEffect(() => {
     if (!sunday) {

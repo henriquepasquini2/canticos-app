@@ -10,7 +10,7 @@ import {
 } from 'lucide-react'
 import { useSuggestions } from '@/hooks/useSuggestions'
 import { useAuth } from '@/lib/auth'
-import { useRealtime } from '@/hooks/useRealtime'
+import { useMultiRealtime, REALTIME } from '@/hooks/useRealtime'
 import { Button } from '@/components/ui/Button'
 import { Input, Textarea } from '@/components/ui/Input'
 import { Badge } from '@/components/ui/Badge'
@@ -30,7 +30,7 @@ export function Suggestions() {
   const canSubmit = isApproved
   const { suggestions, addSuggestion, deleteOwnPending, updateStatus, refetch } =
     useSuggestions()
-  useRealtime('suggestions', refetch)
+  useMultiRealtime(REALTIME.suggestions, refetch, true)
 
   const [form, setForm] = useState({
     song_name: '',

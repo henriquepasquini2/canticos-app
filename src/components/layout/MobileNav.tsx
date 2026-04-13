@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import { NavLink } from 'react-router-dom'
 import {
   LayoutDashboard,
@@ -13,6 +13,7 @@ import {
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useSuggestions } from '@/hooks/useSuggestions'
+import { useMultiRealtime, REALTIME } from '@/hooks/useRealtime'
 
 const mainItems = [
   { to: '/admin', icon: LayoutDashboard, label: 'Home', end: true },
@@ -28,8 +29,14 @@ const moreItems = [
 ]
 
 export function MobileNav() {
-  const { pendingCount } = useSuggestions()
+  const { pendingCount, refetch: refetchSuggestions } = useSuggestions()
   const [showMore, setShowMore] = useState(false)
+
+  const refreshSuggestionBadge = useCallback(() => {
+    void refetchSuggestions()
+  }, [refetchSuggestions])
+
+  useMultiRealtime(REALTIME.suggestions, refreshSuggestionBadge, true)
 
   return (
     <>

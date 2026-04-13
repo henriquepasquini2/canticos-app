@@ -1,6 +1,7 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useCallback } from 'react'
 import { Search, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react'
 import { useSongsWithStats } from '@/hooks/useSongs'
+import { useMultiRealtime, REALTIME } from '@/hooks/useRealtime'
 import { FilterBar } from '@/components/ui/FilterBar'
 import { Badge } from '@/components/ui/Badge'
 import { SongDetail } from '@/components/songs/SongDetail'
@@ -19,6 +20,12 @@ function SortIcon({ active, dir }: { active: boolean; dir: SortDir }) {
 
 export function Catalog() {
   const { songs, loading, refetch } = useSongsWithStats()
+
+  const refreshCatalog = useCallback(() => {
+    void refetch()
+  }, [refetch])
+
+  useMultiRealtime(REALTIME.songsAndLinks, refreshCatalog, true)
   const [filter, setFilter] = useState<SongFilter>('all')
   const [search, setSearch] = useState('')
   const [selectedSong, setSelectedSong] = useState<SongWithStats | null>(null)

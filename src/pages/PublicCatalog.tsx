@@ -1,6 +1,7 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useCallback } from 'react'
 import { Search, FolderOpen, ArrowUpDown, ArrowUp, ArrowDown, ExternalLink } from 'lucide-react'
 import { useSongsWithStats } from '@/hooks/useSongs'
+import { useMultiRealtime, REALTIME } from '@/hooks/useRealtime'
 import { formatDate } from '@/lib/utils'
 import { formatSongTitle, getDriveUrl } from '@/components/songs/SongName'
 import { getDriveRootUrl } from '@/lib/driveRoot'
@@ -14,7 +15,13 @@ function SortIcon({ active, dir }: { active: boolean; dir: SortDir }) {
 }
 
 export function PublicCatalog() {
-  const { songs, loading } = useSongsWithStats()
+  const { songs, loading, refetch } = useSongsWithStats()
+
+  const refreshCatalog = useCallback(() => {
+    void refetch()
+  }, [refetch])
+
+  useMultiRealtime(REALTIME.songsAndLinks, refreshCatalog, true)
   const [search, setSearch] = useState('')
   const [sortKey, setSortKey] = useState<SortKey>('number')
   const [sortDir, setSortDir] = useState<SortDir>('asc')

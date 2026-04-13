@@ -75,7 +75,7 @@ export function useSongsWithStats() {
 }
 
 export function useSongStats() {
-  const { songs, loading } = useSongsWithStats()
+  const { songs, loading, refetch } = useSongsWithStats()
 
   const playable = songs.filter((s) => s.is_playable && s.is_ready)
   const neverPlayed = playable.filter((s) => s.executions === 0)
@@ -87,6 +87,7 @@ export function useSongStats() {
   return {
     songs,
     loading,
+    refetch,
     total: songs.length,
     playableCount: playable.length,
     neverPlayedCount: neverPlayed.length,

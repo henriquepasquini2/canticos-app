@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useCallback } from 'react'
 import {
   Clock,
   TrendingUp,
@@ -8,6 +8,7 @@ import {
   Wrench,
 } from 'lucide-react'
 import { useSongsWithStats } from '@/hooks/useSongs'
+import { useMultiRealtime, REALTIME } from '@/hooks/useRealtime'
 import { formatDate, getDiversityColor, cn } from '@/lib/utils'
 import { formatSongTitle } from '@/components/songs/SongName'
 import { FORGOTTEN_DAYS } from '@/lib/constants'
@@ -21,7 +22,13 @@ type InsightView =
   | 'recently_played'
 
 export function Insights() {
-  const { songs, loading } = useSongsWithStats()
+  const { songs, loading, refetch } = useSongsWithStats()
+
+  const refreshInsights = useCallback(() => {
+    void refetch()
+  }, [refetch])
+
+  useMultiRealtime(REALTIME.songsAndLinks, refreshInsights, true)
   const [view, setView] = useState<InsightView>('forgotten')
 
   const data = useMemo(() => {
