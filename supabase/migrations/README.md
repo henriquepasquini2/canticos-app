@@ -14,5 +14,6 @@ Run these in the Supabase **SQL Editor** for your project, **in this order** (on
 | 8 | `08_suggestions_comments_approved_only.sql` | Suggestions & comments: no anonymous access; approved editors + admins only |
 | 9 | `09_public_suggestions_read_admin_list.sql` | Suggestions: public `SELECT`; admins can list all rows in `admins` |
 | 10 | `10_comments_public_read_ownership.sql` | Comments public read + `user_id`; delete own / admin any; suggestions own pending delete |
+| 11 | `11_realtime_extra_tables.sql` | Realtime: add `songs`, `approved_users`, `access_requests`, `admins` to `supabase_realtime` (01 already adds the rest) |
 
 If the database already existed, do not re-run older scripts blindly — verify policies in the Supabase dashboard first.

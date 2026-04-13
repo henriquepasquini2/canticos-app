@@ -14,7 +14,7 @@ npm install
 
 1. Go to [supabase.com](https://supabase.com) and create a project.
 2. In the **SQL Editor**, run the migrations in `supabase/migrations/` in the order listed in `supabase/migrations/README.md`, starting with `01_initial.sql`.
-3. Under **Database → Replication**, enable Realtime for: `songs`, `sundays`, `sunday_songs`, `suggestions`, `comments`, `approved_users`, `access_requests`, `admins` (so lists update live without refresh).
+3. For **live updates** in the app, run migration **`11_realtime_extra_tables.sql`** (adds `songs`, `approved_users`, `access_requests`, `admins` to Realtime). Earlier migrations already add `sundays`, `sunday_songs`, `suggestions`, `comments`. Alternatively, enable the same tables under **Database → Replication** in the dashboard.
 
 ### 3. Environment variables
 

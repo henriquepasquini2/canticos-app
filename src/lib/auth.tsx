@@ -89,6 +89,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session: s } }) => {
+      void supabase.realtime.setAuth()
       setSession(s)
       setUser(s?.user ?? null)
       if (s?.user) {
@@ -101,6 +102,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, s) => {
+      // Keep Realtime JWT in sync (INITIAL_SESSION is not handled by supabase-js for realtime).
+      void supabase.realtime.setAuth()
       setSession(s)
       setUser(s?.user ?? null)
       setLoginError(null)

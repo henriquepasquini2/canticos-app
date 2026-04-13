@@ -77,19 +77,32 @@ export function useMultiRealtime(
     }
 
     const safeKey = key.replace(/\0/g, '-')
-    const channel = supabase.channel(`rt-${safeKey}-${id}`)
-    for (const table of tableList) {
-      channel.on(
+    // One channel per table: multi-table channels compare server vs client bindings by
+    // array index; if order differs, subscribe fails silently and no events arrive.
+    const channels = tableList.map((table) => {
+      const ch = supabase.channel(`rt-${safeKey}-${table}-${id}`)
+      ch.on(
         'postgres_changes',
         { event: '*', schema: 'public', table },
         schedule
       )
-    }
-    channel.subscribe()
+      ch.subscribe((status, err) => {
+        if (
+          import.meta.env.DEV &&
+          status !== 'SUBSCRIBED' &&
+          status !== 'CLOSED'
+        ) {
+          console.warn(`[realtime] ${table}:`, status, err)
+        }
+      })
+      return ch
+    })
 
     return () => {
       clearTimeout(timeout)
-      supabase.removeChannel(channel)
+      for (const ch of channels) {
+        void supabase.removeChannel(ch)
+      }
     }
   }, [enabled, id, key, showToast])
 }
