@@ -3,7 +3,6 @@ import {
   RouterProvider,
   Route,
   createRoutesFromElements,
-  Navigate,
 } from 'react-router-dom'
 import { Toaster } from 'sonner'
 import { AuthProvider } from '@/lib/auth'
@@ -42,17 +41,13 @@ const router = createBrowserRouter(
 
       <Route path="/login" element={<Login />} />
 
-      <Route
-        path="/admin/sugestoes"
-        element={<Navigate to="/sugestoes" replace />}
-      />
-
       {/* Admin-only routes */}
       <Route element={<AdminRoute />}>
         <Route element={<Layout />}>
           <Route path="/admin" element={<Dashboard />} />
           <Route path="/admin/catalogo" element={<Catalog />} />
           <Route path="/admin/calendario" element={<Calendar />} />
+          <Route path="/admin/sugestoes" element={<Suggestions />} />
           <Route
             path="/admin/domingo/:date"
             element={<ScheduleBuilderPage />}

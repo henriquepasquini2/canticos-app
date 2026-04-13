@@ -18,7 +18,7 @@ const mainItems = [
   { to: '/admin', icon: LayoutDashboard, label: 'Home', end: true },
   { to: '/admin/catalogo', icon: Library, label: 'Catálogo', end: false },
   { to: '/admin/calendario', icon: CalendarDays, label: 'Calendário', end: false },
-  { to: '/sugestoes', icon: Lightbulb, label: 'Sugestões', end: false },
+  { to: '/admin/sugestoes', icon: Lightbulb, label: 'Sugestões', end: false },
 ]
 
 const moreItems = [
@@ -82,7 +82,7 @@ export function MobileNav() {
             >
               <item.icon size={20} />
               <span>{item.label}</span>
-              {item.to === '/sugestoes' && pendingCount > 0 && (
+              {item.to === '/admin/sugestoes' && pendingCount > 0 && (
                 <span className="absolute top-1.5 right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-accent-light text-[9px] font-bold text-white">
                   {pendingCount}
                 </span>

@@ -22,7 +22,7 @@ const navItems = [
   { to: '/admin', icon: LayoutDashboard, label: 'Dashboard', end: true },
   { to: '/admin/catalogo', icon: Library, label: 'Catálogo', end: false },
   { to: '/admin/calendario', icon: CalendarDays, label: 'Calendário', end: false },
-  { to: '/sugestoes', icon: Lightbulb, label: 'Sugestões', end: false },
+  { to: '/admin/sugestoes', icon: Lightbulb, label: 'Sugestões', end: false },
   { to: '/admin/insights', icon: BarChart3, label: 'Insights', end: false },
   { to: '/admin/sync', icon: RefreshCw, label: 'Sincronizar', end: false },
   { to: '/admin/usuarios', icon: Users, label: 'Usuários', end: false },
@@ -57,7 +57,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
             <item.icon size={20} className="shrink-0" />
             {!collapsed && <span className="flex-1">{item.label}</span>}
             {!collapsed &&
-              item.to === '/sugestoes' &&
+              item.to === '/admin/sugestoes' &&
               pendingCount > 0 && (
                 <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-accent-light text-[10px] font-bold text-white">
                   {pendingCount}
