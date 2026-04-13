@@ -9,14 +9,14 @@ CREATE TABLE IF NOT EXISTS admins (
   email TEXT UNIQUE NOT NULL
 );
 
--- Dados sensíveis (e-mails, IDs de planilha/Drive) não devem ficar no Git.
--- Insira manualmente no Supabase → SQL Editor, por exemplo:
+-- Sensitive data (admin emails, Sheet/Drive IDs) must not live in Git.
+-- Insert manually in Supabase → SQL Editor, for example:
 --
--- INSERT INTO admins (email) VALUES ('seu@email.com') ON CONFLICT (email) DO NOTHING;
+-- INSERT INTO admins (email) VALUES ('you@example.com') ON CONFLICT (email) DO NOTHING;
 --
 -- INSERT INTO settings (key, value) VALUES
---   ('sheets_url', 'https://docs.google.com/spreadsheets/d/SEU_ID/export?format=csv&gid=...'),
---   ('drive_folder_id', 'ID_DA_PASTA_DRIVE')
+--   ('sheets_url', 'https://docs.google.com/spreadsheets/d/YOUR_ID/export?format=csv&gid=...'),
+--   ('drive_folder_id', 'YOUR_DRIVE_FOLDER_ID')
 -- ON CONFLICT (key) DO NOTHING;
 
 -- 2. Settings table

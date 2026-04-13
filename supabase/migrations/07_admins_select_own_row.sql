@@ -5,8 +5,8 @@
 
 DROP POLICY IF EXISTS "Auth read admins" ON admins;
 
--- Cada usuário autenticado só lê a linha em que o email bate com o JWT.
--- O checkRole no app usa .eq('email', email) — continua funcionando.
+-- Each authenticated user only reads the row where email matches the JWT.
+-- App checkRole uses .eq('email', email) — still works.
 CREATE POLICY "Auth read own admin row" ON admins
   FOR SELECT TO authenticated
   USING (email = (auth.jwt() ->> 'email'));
