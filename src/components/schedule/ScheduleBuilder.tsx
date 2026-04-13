@@ -31,7 +31,7 @@ export function ScheduleBuilder({ date }: ScheduleBuilderProps) {
   const { sunday, loading, refetch } = useSunday(date)
 
   const { comments, addComment, deleteComment, refetch: refetchComments } = useComments(sunday?.id)
-  const { user, isApproved, loading: authLoading } = useAuth()
+  const { user, isApproved, isAdmin, loading: authLoading } = useAuth()
   /** Require resolved session + approved role so we never show the editor before auth finishes. */
   const canEdit = !!user && isApproved
   const [search, setSearch] = useState('')
@@ -47,7 +47,7 @@ export function ScheduleBuilder({ date }: ScheduleBuilderProps) {
   const serverSongIdsRef = useRef<string>('[]')
 
   useRealtime('sunday_songs', refetch)
-  useRealtime('comments', refetchComments, !!sunday?.id && canEdit)
+  useRealtime('comments', refetchComments, !!sunday?.id)
 
   useEffect(() => {
     if (!sunday) {
@@ -178,14 +178,23 @@ export function ScheduleBuilder({ date }: ScheduleBuilderProps) {
     }
   }
 
+  const canDeleteComment = useCallback(
+    (commentUserId: string | null) => {
+      if (!user?.id) return false
+      if (isAdmin) return true
+      return !!commentUserId && commentUserId === user.id
+    },
+    [user?.id, isAdmin]
+  )
+
   const handleAddComment = async () => {
     if (!commentText.trim()) return
     const author = commentAuthorLabel.trim()
-    if (!author) {
+    if (!author || !user?.id) {
       toast.error('Não foi possível identificar seu usuário. Atualize a página.')
       return
     }
-    const { error } = await addComment(author, commentText.trim())
+    const { error } = await addComment(author, commentText.trim(), user.id)
     if (error) {
       if (isRlsOrAuthError(error)) {
         toast.error(
@@ -257,6 +266,31 @@ export function ScheduleBuilder({ date }: ScheduleBuilderProps) {
               <p className="text-sm">Programação ainda não definida.</p>
             </div>
           )}
+        </div>
+
+        <div className="rounded-xl border border-border bg-bg-card p-4 sm:p-5">
+          <h2 className="text-base font-semibold mb-4">Comentários</h2>
+          <div className="space-y-3 max-h-48 overflow-y-auto">
+            {comments.map((c) => (
+              <div key={c.id} className="rounded-lg bg-bg-secondary p-3">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-xs font-medium text-accent-light">
+                    {c.author}
+                  </span>
+                  <span className="text-xs text-text-muted">
+                    {new Date(c.created_at).toLocaleDateString('pt-BR')}
+                  </span>
+                </div>
+                <p className="text-sm text-text-secondary">{c.content}</p>
+              </div>
+            ))}
+            {comments.length === 0 && (
+              <p className="text-xs text-text-muted">Nenhum comentário ainda.</p>
+            )}
+          </div>
+          <p className="text-xs text-text-muted mt-3">
+            Entre com conta autorizada para comentar.
+          </p>
         </div>
       </div>
     )
@@ -474,8 +508,9 @@ export function ScheduleBuilder({ date }: ScheduleBuilderProps) {
                           {new Date(c.created_at).toLocaleDateString('pt-BR')}
                         </span>
                       </div>
-                      {canEdit && (
+                      {canDeleteComment(c.user_id) && (
                         <button
+                          type="button"
                           onClick={async () => {
                             const { error } = await deleteComment(c.id)
                             if (error) {
@@ -491,7 +526,11 @@ export function ScheduleBuilder({ date }: ScheduleBuilderProps) {
                             toast.success('Comentário removido')
                           }}
                           className="rounded p-1 text-text-muted hover:text-danger hover:bg-danger/10 transition-colors cursor-pointer"
-                          title="Remover comentário"
+                          title={
+                            isAdmin
+                              ? 'Remover comentário'
+                              : 'Remover meu comentário'
+                          }
                         >
                           <Trash2 size={12} />
                         </button>

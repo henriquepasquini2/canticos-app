@@ -21,12 +21,19 @@ export function useComments(sundayId: number | undefined) {
 
   useEffect(() => { fetchComments() }, [fetchComments])
 
-  const addComment = async (author: string, content: string) => {
+  const addComment = async (
+    author: string,
+    content: string,
+    userId: string
+  ) => {
     if (!sundayId) return { error: new Error('No sunday selected') }
 
-    const { error } = await supabase
-      .from('comments')
-      .insert({ sunday_id: sundayId, author, content })
+    const { error } = await supabase.from('comments').insert({
+      sunday_id: sundayId,
+      author,
+      content,
+      user_id: userId,
+    })
 
     if (!error) await fetchComments()
     return { error }

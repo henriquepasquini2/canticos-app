@@ -34,6 +34,7 @@ export interface Suggestion {
   link: string | null
   status: 'pendente' | 'aprovada' | 'rejeitada'
   created_at: string
+  user_id: string | null
 }
 
 export interface Comment {
@@ -42,6 +43,7 @@ export interface Comment {
   author: string
   content: string
   created_at: string
+  user_id: string | null
 }
 
 export interface SundayWithSongs extends Sunday {

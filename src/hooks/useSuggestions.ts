@@ -18,14 +18,25 @@ export function useSuggestions() {
 
   useEffect(() => { fetchSuggestions() }, [fetchSuggestions])
 
-  const addSuggestion = async (suggestion: {
-    song_name: string
-    artist?: string
-    suggested_by: string
-    reason?: string
-    link?: string
-  }) => {
-    const { error } = await supabase.from('suggestions').insert(suggestion)
+  const addSuggestion = async (
+    suggestion: {
+      song_name: string
+      artist?: string
+      suggested_by: string
+      reason?: string
+      link?: string
+    },
+    userId: string
+  ) => {
+    const { error } = await supabase
+      .from('suggestions')
+      .insert({ ...suggestion, user_id: userId })
+    if (!error) await fetchSuggestions()
+    return { error }
+  }
+
+  const deleteOwnPending = async (id: number) => {
+    const { error } = await supabase.from('suggestions').delete().eq('id', id)
     if (!error) await fetchSuggestions()
     return { error }
   }
@@ -49,6 +60,7 @@ export function useSuggestions() {
     loading,
     refetch: fetchSuggestions,
     addSuggestion,
+    deleteOwnPending,
     updateStatus,
     pendingCount,
   }

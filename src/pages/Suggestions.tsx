@@ -6,6 +6,7 @@ import {
   Check,
   X,
   Clock,
+  Trash2,
 } from 'lucide-react'
 import { useSuggestions } from '@/hooks/useSuggestions'
 import { useAuth } from '@/lib/auth'
@@ -27,7 +28,8 @@ const statusConfig = {
 export function Suggestions() {
   const { isAdmin, user, isApproved } = useAuth()
   const canSubmit = isApproved
-  const { suggestions, addSuggestion, updateStatus, refetch } = useSuggestions()
+  const { suggestions, addSuggestion, deleteOwnPending, updateStatus, refetch } =
+    useSuggestions()
   useRealtime('suggestions', refetch)
 
   const [form, setForm] = useState({
@@ -46,7 +48,7 @@ export function Suggestions() {
     }
 
     const suggestedBy = getUserDisplayName(user)
-    if (!suggestedBy) {
+    if (!user?.id || !suggestedBy) {
       toast.error('Não foi possível identificar seu usuário. Entre de novo.')
       return
     }
@@ -58,13 +60,16 @@ export function Suggestions() {
     }
 
     setSubmitting(true)
-    const { error } = await addSuggestion({
-      song_name: form.song_name.trim(),
-      artist: form.artist.trim() || undefined,
-      suggested_by: suggestedBy,
-      reason: form.reason.trim() || undefined,
-      link: linkTrim || undefined,
-    })
+    const { error } = await addSuggestion(
+      {
+        song_name: form.song_name.trim(),
+        artist: form.artist.trim() || undefined,
+        suggested_by: suggestedBy,
+        reason: form.reason.trim() || undefined,
+        link: linkTrim || undefined,
+      },
+      user.id
+    )
 
     if (error) {
       if (isRlsOrAuthError(error)) {
@@ -99,6 +104,19 @@ export function Suggestions() {
     toast.success(`Sugestão ${status}`)
   }
 
+  const handleRemoveOwn = async (id: number) => {
+    const { error } = await deleteOwnPending(id)
+    if (error) {
+      if (isRlsOrAuthError(error)) {
+        toast.error('Sem permissão ou esta sugestão não pode mais ser removida.')
+      } else {
+        toast.error('Não foi possível remover a sugestão')
+      }
+      return
+    }
+    toast.success('Sugestão removida')
+  }
+
   const visible = suggestions.filter((s) => s.status !== 'rejeitada')
   const pending = visible.filter((s) => s.status === 'pendente')
   const approved = visible.filter((s) => s.status === 'aprovada')
@@ -107,10 +125,6 @@ export function Suggestions() {
     <div className="space-y-8 max-w-4xl">
       <div>
         <h1 className="text-2xl font-bold">Sugestões</h1>
-        <p className="text-text-secondary mt-1">
-          Todo mundo pode ver as ideias; quem tem acesso de editor pode enviar. Administradores
-          aprovam ou rejeitam.
-        </p>
       </div>
 
       {!canSubmit && (
@@ -210,6 +224,14 @@ export function Suggestions() {
                     ? () => handleStatus(s.id, 'rejeitada')
                     : undefined
                 }
+                onRemoveOwn={
+                  !isAdmin &&
+                  canSubmit &&
+                  user?.id &&
+                  s.user_id === user.id
+                    ? () => handleRemoveOwn(s.id)
+                    : undefined
+                }
               />
             ))}
           </div>
@@ -248,10 +270,12 @@ function SuggestionCard({
   suggestion,
   onApprove,
   onReject,
+  onRemoveOwn,
 }: {
   suggestion: ReturnType<typeof useSuggestions>['suggestions'][0]
   onApprove?: () => void
   onReject?: () => void
+  onRemoveOwn?: () => void
 }) {
   const config = statusConfig[suggestion.status]
 
@@ -293,22 +317,38 @@ function SuggestionCard({
           </div>
         </div>
 
-        {suggestion.status === 'pendente' && onApprove && onReject && (
+        {suggestion.status === 'pendente' && (
           <div className="flex gap-2 shrink-0">
-            <button
-              onClick={onApprove}
-              className="rounded-lg p-2 text-success hover:bg-success/10 transition-colors cursor-pointer"
-              title="Aprovar"
-            >
-              <Check size={18} />
-            </button>
-            <button
-              onClick={onReject}
-              className="rounded-lg p-2 text-danger hover:bg-danger/10 transition-colors cursor-pointer"
-              title="Rejeitar"
-            >
-              <X size={18} />
-            </button>
+            {onRemoveOwn && (
+              <button
+                type="button"
+                onClick={onRemoveOwn}
+                className="rounded-lg p-2 text-text-muted hover:text-danger hover:bg-danger/10 transition-colors cursor-pointer"
+                title="Remover minha sugestão"
+              >
+                <Trash2 size={18} />
+              </button>
+            )}
+            {onApprove && onReject && (
+              <>
+                <button
+                  type="button"
+                  onClick={onApprove}
+                  className="rounded-lg p-2 text-success hover:bg-success/10 transition-colors cursor-pointer"
+                  title="Aprovar"
+                >
+                  <Check size={18} />
+                </button>
+                <button
+                  type="button"
+                  onClick={onReject}
+                  className="rounded-lg p-2 text-danger hover:bg-danger/10 transition-colors cursor-pointer"
+                  title="Rejeitar"
+                >
+                  <X size={18} />
+                </button>
+              </>
+            )}
           </div>
         )}
       </div>
