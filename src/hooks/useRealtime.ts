@@ -4,7 +4,17 @@ import { toast } from 'sonner'
 
 const DEBOUNCE_MS = 280
 
-type RealtimeOptions = { showToast?: boolean }
+/** Refetch while tab is visible if postgres_changes does not fire (Supabase/RLS/network). */
+export const LIVE_DATA_POLL_MS = 8_000
+
+type RealtimeOptions = {
+  showToast?: boolean
+  /**
+   * When set, periodically refetch while the document is visible.
+   * Use on pages where live updates matter (suggestions, domingo).
+   */
+  pollIntervalMs?: number
+}
 
 function tablesKey(tables: readonly string[]) {
   return tables.join('\0')
@@ -49,11 +59,31 @@ export function useMultiRealtime(
   options?: RealtimeOptions
 ) {
   const showToast = options?.showToast ?? false
+  const pollIntervalMs = options?.pollIntervalMs
   const onUpdateRef = useRef(onUpdate)
   onUpdateRef.current = onUpdate
   const id = useId().replace(/:/g, '')
 
   const pendingToastRef = useRef(false)
+
+  useEffect(() => {
+    if (!pollIntervalMs || !enabled || !key) return
+    const tick = () => {
+      if (document.visibilityState !== 'visible') return
+      onUpdateRef.current()
+    }
+    const interval = setInterval(tick, pollIntervalMs)
+    return () => clearInterval(interval)
+  }, [enabled, key, pollIntervalMs])
+
+  useEffect(() => {
+    if (!pollIntervalMs || !enabled || !key) return
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') onUpdateRef.current()
+    }
+    document.addEventListener('visibilitychange', onVisible)
+    return () => document.removeEventListener('visibilitychange', onVisible)
+  }, [enabled, key, pollIntervalMs])
 
   useEffect(() => {
     if (!enabled || !key) return
@@ -87,12 +117,8 @@ export function useMultiRealtime(
         schedule
       )
       ch.subscribe((status, err) => {
-        if (
-          import.meta.env.DEV &&
-          status !== 'SUBSCRIBED' &&
-          status !== 'CLOSED'
-        ) {
-          console.warn(`[realtime] ${table}:`, status, err)
+        if (status !== 'SUBSCRIBED' && status !== 'CLOSED') {
+          console.warn(`[canticos realtime] ${table}:`, status, err)
         }
       })
       return ch
