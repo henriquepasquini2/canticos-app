@@ -19,11 +19,17 @@ const __dirname = path.dirname(__filename)
 dotenv.config({ path: path.resolve(__dirname, '../.env') })
 
 const supabaseUrl = process.env.VITE_SUPABASE_URL!
-const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY!
+// Prefer the service_role key for server-side scripts (bypasses RLS).
+// NEVER prefix with VITE_ — that would expose it in the client bundle.
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY!
 
 if (!supabaseUrl || supabaseUrl.includes('your-supabase')) {
-  console.error('Configure VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in .env')
+  console.error('Configure VITE_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY in .env')
   process.exit(1)
+}
+
+if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
+  console.warn('⚠ SUPABASE_SERVICE_ROLE_KEY not set — falling back to anon key (RLS applies)')
 }
 
 const supabase = createClient(supabaseUrl, supabaseKey)

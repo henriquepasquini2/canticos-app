@@ -45,7 +45,7 @@ export const REALTIME = {
   home: tablesKey(['sundays', 'sunday_songs', 'songs']),
   dashboard: tablesKey(['songs', 'sunday_songs', 'sundays', 'suggestions']),
   suggestions: tablesKey(['suggestions']),
-  usersAdmin: tablesKey(['approved_users', 'access_requests', 'admins']),
+  usersAdmin: tablesKey(['approved_users', 'access_requests']),
 } as const
 
 /**

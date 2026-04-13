@@ -16,5 +16,6 @@ Run these in the Supabase **SQL Editor** for your project, **in this order** (on
 | 10 | `10_comments_public_read_ownership.sql` | Comments public read + `user_id`; delete own / admin any; suggestions own pending delete |
 | 11 | `11_realtime_extra_tables.sql` | Realtime: add `songs`, `approved_users`, `access_requests`, `admins` to `supabase_realtime` (01 already adds the rest) |
 | 12 | `12_ensure_core_tables_realtime_publication.sql` | Realtime: ensure `sundays`, `sunday_songs`, `suggestions`, `comments` are in `supabase_realtime` (run if live updates never arrive) |
+| 13 | `13_security_hardening.sql` | Security: drop sensitive tables from Realtime publication; tighten `settings` admin policy |
 
 If the database already existed, do not re-run older scripts blindly — verify policies in the Supabase dashboard first.

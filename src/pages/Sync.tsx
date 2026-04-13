@@ -14,6 +14,7 @@ import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Badge } from '@/components/ui/Badge'
 import { supabase } from '@/lib/supabase'
+import { isSafeHttpUrl } from '@/lib/safeUrl'
 import { toast } from 'sonner'
 
 /** Opcional: defina no .env local (não commite valores reais em repositório público). */
@@ -604,12 +605,14 @@ export function Sync() {
             )}
             {syncingDrive ? 'Verificando...' : 'Verificar Drive'}
           </Button>
-          <a href={driveUrl} target="_blank" rel="noopener noreferrer">
-            <Button variant="ghost">
-              <ExternalLink size={16} />
-              Abrir no Drive
-            </Button>
-          </a>
+          {isSafeHttpUrl(driveUrl) && (
+            <a href={driveUrl} target="_blank" rel="noopener noreferrer">
+              <Button variant="ghost">
+                <ExternalLink size={16} />
+                Abrir no Drive
+              </Button>
+            </a>
+          )}
         </div>
 
         {driveFiles.length > 0 && (
