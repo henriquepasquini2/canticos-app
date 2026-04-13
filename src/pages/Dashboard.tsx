@@ -12,7 +12,7 @@ import {
 import { useSongStats } from '@/hooks/useSongs'
 import { useRecentSundays, useUpcomingSundays } from '@/hooks/useSundays'
 import { useSuggestions } from '@/hooks/useSuggestions'
-import { useMultiRealtime, REALTIME } from '@/hooks/useRealtime'
+import { useMultiRealtime, REALTIME, LIVE_DATA_POLL_MS } from '@/hooks/useRealtime'
 import { formatDateLong, getNextSunday } from '@/lib/utils'
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
@@ -63,7 +63,9 @@ export function Dashboard() {
     refetchSuggestions,
   ])
 
-  useMultiRealtime(REALTIME.dashboard, refreshDashboard, true)
+  useMultiRealtime(REALTIME.dashboard, refreshDashboard, true, {
+    pollIntervalMs: LIVE_DATA_POLL_MS,
+  })
 
   const nextSunday = getNextSunday()
   const nextSundayStr = format(nextSunday, 'yyyy-MM-dd')

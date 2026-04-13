@@ -2,7 +2,7 @@ import { useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowRight, Music, ExternalLink } from 'lucide-react'
 import { useUpcomingSundays, useRecentSundays } from '@/hooks/useSundays'
-import { useMultiRealtime, REALTIME } from '@/hooks/useRealtime'
+import { useMultiRealtime, REALTIME, LIVE_DATA_POLL_MS } from '@/hooks/useRealtime'
 import { formatDateLong, getNextSunday } from '@/lib/utils'
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
@@ -18,7 +18,9 @@ export function PublicHome() {
     void refetchRecent()
   }, [refetchUpcoming, refetchRecent])
 
-  useMultiRealtime(REALTIME.home, refreshHome, true)
+  useMultiRealtime(REALTIME.home, refreshHome, true, {
+    pollIntervalMs: LIVE_DATA_POLL_MS,
+  })
 
   const nextSunday = getNextSunday()
   const nextSundayStr = format(nextSunday, 'yyyy-MM-dd')

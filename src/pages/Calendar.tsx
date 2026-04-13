@@ -15,7 +15,7 @@ import {
 import { ptBR } from 'date-fns/locale'
 import { ChevronLeft, ChevronRight, ExternalLink } from 'lucide-react'
 import { useSundays } from '@/hooks/useSundays'
-import { useMultiRealtime, REALTIME } from '@/hooks/useRealtime'
+import { useMultiRealtime, REALTIME, LIVE_DATA_POLL_MS } from '@/hooks/useRealtime'
 import { Badge } from '@/components/ui/Badge'
 import { formatSongTitle, DriveLink } from '@/components/songs/SongName'
 import { cn } from '@/lib/utils'
@@ -28,7 +28,9 @@ export function Calendar() {
     void refetchSundays()
   }, [refetchSundays])
 
-  useMultiRealtime(REALTIME.sundaysAndLinks, refreshCalendar, true)
+  useMultiRealtime(REALTIME.sundaysAndLinks, refreshCalendar, true, {
+    pollIntervalMs: LIVE_DATA_POLL_MS,
+  })
 
   const sundayMap = useMemo(() => {
     const map = new Map<string, typeof sundays[0]>()
