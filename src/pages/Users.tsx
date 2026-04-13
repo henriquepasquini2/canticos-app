@@ -33,6 +33,11 @@ export function Users() {
   const pendingRequests = requests.filter((r) => r.status === 'pending')
   const resolvedRequests = requests.filter((r) => r.status !== 'pending')
 
+  const adminEmailSet = new Set(admins.map((a) => a.email.toLowerCase()))
+  const approvedEditors = users.filter(
+    (u) => !adminEmailSet.has(u.email.toLowerCase())
+  )
+
   useEffect(() => {
     supabase
       .from('admins')
@@ -230,11 +235,11 @@ export function Users() {
         <div className="flex items-center gap-2 mb-4">
           <ShieldCheck size={18} className="text-accent-light" />
           <h2 className="text-lg font-semibold">Usuários Aprovados</h2>
-          <Badge variant="info">{users.length}</Badge>
+          <Badge variant="info">{approvedEditors.length}</Badge>
         </div>
-        {users.length > 0 ? (
+        {approvedEditors.length > 0 ? (
           <div className="space-y-2">
-            {users.map((u) => (
+            {approvedEditors.map((u) => (
               <div
                 key={u.id}
                 className="flex items-center justify-between rounded-lg border border-border bg-bg-card px-4 py-3"

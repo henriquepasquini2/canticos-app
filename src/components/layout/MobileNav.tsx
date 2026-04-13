@@ -10,22 +10,15 @@ import {
   RefreshCw,
   Users,
   X,
-  Home,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useSuggestions } from '@/hooks/useSuggestions'
-import { useAuth } from '@/lib/auth'
-
-const editorMobileItems = [
-  { to: '/', icon: Home, label: 'Início', end: true },
-  { to: '/admin/sugestoes', icon: Lightbulb, label: 'Sugestões', end: false },
-]
 
 const mainItems = [
   { to: '/admin', icon: LayoutDashboard, label: 'Home', end: true },
   { to: '/admin/catalogo', icon: Library, label: 'Catálogo', end: false },
   { to: '/admin/calendario', icon: CalendarDays, label: 'Calendário', end: false },
-  { to: '/admin/sugestoes', icon: Lightbulb, label: 'Sugestões', end: false },
+  { to: '/sugestoes', icon: Lightbulb, label: 'Sugestões', end: false },
 ]
 
 const moreItems = [
@@ -36,38 +29,7 @@ const moreItems = [
 
 export function MobileNav() {
   const { pendingCount } = useSuggestions()
-  const { isAdmin } = useAuth()
   const [showMore, setShowMore] = useState(false)
-
-  if (!isAdmin) {
-    return (
-      <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-bg-secondary/95 backdrop-blur-md lg:hidden">
-        <div className="flex items-center justify-around">
-          {editorMobileItems.map((item) => (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              end={item.end}
-              className={({ isActive }) =>
-                cn(
-                  'flex flex-col items-center gap-1 px-3 py-2.5 text-[10px] font-medium transition-colors relative',
-                  isActive ? 'text-accent-light' : 'text-text-muted'
-                )
-              }
-            >
-              <item.icon size={20} />
-              <span>{item.label}</span>
-              {item.to === '/admin/sugestoes' && pendingCount > 0 && (
-                <span className="absolute top-1.5 right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-accent-light text-[9px] font-bold text-white">
-                  {pendingCount}
-                </span>
-              )}
-            </NavLink>
-          ))}
-        </div>
-      </nav>
-    )
-  }
 
   return (
     <>
@@ -120,7 +82,7 @@ export function MobileNav() {
             >
               <item.icon size={20} />
               <span>{item.label}</span>
-              {item.to === '/admin/sugestoes' && pendingCount > 0 && (
+              {item.to === '/sugestoes' && pendingCount > 0 && (
                 <span className="absolute top-1.5 right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-accent-light text-[9px] font-bold text-white">
                   {pendingCount}
                 </span>

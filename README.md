@@ -53,7 +53,7 @@ npm run dev
 - **Catalog** — All songs with filters, search, and play history.
 - **Calendar** — Month view with navigation.
 - **Schedule builder** — Drag-and-drop to build each Sunday’s lineup.
-- **Suggestions** — Approved team members can suggest new songs (`/admin/sugestoes` after sign-in).
+- **Suggestions** — Public list at `/sugestoes`; approved editors and admins can submit; admins approve/reject (RLS + UI).
 - **Insights** — Diversity, “forgotten” songs, most played, etc. (admin).
 - **Realtime** — Changes propagate to connected clients.
 - **Comments** — Per-Sunday discussion threads.

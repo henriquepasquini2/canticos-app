@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import {
   Lightbulb,
   ExternalLink,
@@ -24,7 +25,8 @@ const statusConfig = {
 }
 
 export function Suggestions() {
-  const { isAdmin, user } = useAuth()
+  const { isAdmin, user, isApproved } = useAuth()
+  const canSubmit = isApproved
   const { suggestions, addSuggestion, updateStatus, refetch } = useSuggestions()
   useRealtime('suggestions', refetch)
 
@@ -106,62 +108,86 @@ export function Suggestions() {
       <div>
         <h1 className="text-2xl font-bold">Sugestões</h1>
         <p className="text-text-secondary mt-1">
-          Sugira novas músicas para o repertório
+          Todo mundo pode ver as ideias; quem tem acesso de editor pode enviar. Administradores
+          aprovam ou rejeitam.
         </p>
       </div>
 
-      {/* Suggestion form */}
-      <form
-        onSubmit={handleSubmit}
-        className="rounded-xl border border-border bg-bg-card p-6 space-y-4"
-      >
-        <div className="flex items-center gap-2 mb-2">
-          <Lightbulb size={18} className="text-warning" />
-          <h2 className="text-base font-semibold">Nova Sugestão</h2>
+      {!canSubmit && (
+        <div className="rounded-xl border border-border bg-bg-secondary/50 px-4 py-3 text-sm text-text-secondary">
+          {!user ? (
+            <>
+              Para enviar sugestões, entre com uma conta{' '}
+              <span className="text-text-primary font-medium">autorizada pela equipe</span>.{' '}
+              <Link to="/login" className="text-accent-light hover:underline">
+                Entrar
+              </Link>
+            </>
+          ) : (
+            <>
+              Sua conta ainda não pode enviar sugestões. Use o pedido de acesso no topo do site
+              ou fale com a coordenação.
+            </>
+          )}
         </div>
+      )}
 
-        <div className="grid sm:grid-cols-2 gap-4">
+      {canSubmit && (
+        <form
+          onSubmit={handleSubmit}
+          className="rounded-xl border border-border bg-bg-card p-6 space-y-4"
+        >
+          <div className="flex items-center gap-2 mb-2">
+            <Lightbulb size={18} className="text-warning" />
+            <h2 className="text-base font-semibold">Nova sugestão</h2>
+          </div>
+
+          <div className="grid sm:grid-cols-2 gap-4">
+            <Input
+              id="song_name"
+              label="Nome da música *"
+              placeholder="Ex: Grande é o Senhor"
+              value={form.song_name}
+              onChange={(e) => setForm({ ...form, song_name: e.target.value })}
+            />
+            <Input
+              id="artist"
+              label="Artista / Compositor"
+              placeholder="Ex: Diante do Trono"
+              value={form.artist}
+              onChange={(e) => setForm({ ...form, artist: e.target.value })}
+            />
+          </div>
+
           <Input
-            id="song_name"
-            label="Nome da música *"
-            placeholder="Ex: Grande é o Senhor"
-            value={form.song_name}
-            onChange={(e) => setForm({ ...form, song_name: e.target.value })}
+            id="link"
+            label="Link (YouTube, cifra, etc.)"
+            placeholder="https://..."
+            value={form.link}
+            onChange={(e) => setForm({ ...form, link: e.target.value })}
           />
-          <Input
-            id="artist"
-            label="Artista / Compositor"
-            placeholder="Ex: Diante do Trono"
-            value={form.artist}
-            onChange={(e) => setForm({ ...form, artist: e.target.value })}
+          {user && (
+            <p className="text-xs text-text-muted">
+              Enviando como{' '}
+              <span className="text-text-secondary">
+                {getUserDisplayName(user) || user.email}
+              </span>
+            </p>
+          )}
+
+          <Textarea
+            id="reason"
+            label="Por que essa música?"
+            placeholder="Conte por que acha que essa música seria boa para o repertório..."
+            value={form.reason}
+            onChange={(e) => setForm({ ...form, reason: e.target.value })}
           />
-        </div>
 
-        <Input
-          id="link"
-          label="Link (YouTube, cifra, etc.)"
-          placeholder="https://..."
-          value={form.link}
-          onChange={(e) => setForm({ ...form, link: e.target.value })}
-        />
-        {user && (
-          <p className="text-xs text-text-muted">
-            Enviando como <span className="text-text-secondary">{getUserDisplayName(user) || user.email}</span>
-          </p>
-        )}
-
-        <Textarea
-          id="reason"
-          label="Por que essa música?"
-          placeholder="Conte por que acha que essa música seria boa para o repertório..."
-          value={form.reason}
-          onChange={(e) => setForm({ ...form, reason: e.target.value })}
-        />
-
-        <Button type="submit" disabled={submitting}>
-          {submitting ? 'Enviando...' : 'Enviar Sugestão'}
-        </Button>
-      </form>
+          <Button type="submit" disabled={submitting}>
+            {submitting ? 'Enviando...' : 'Enviar sugestão'}
+          </Button>
+        </form>
+      )}
 
       {/* Pending suggestions */}
       {pending.length > 0 && (

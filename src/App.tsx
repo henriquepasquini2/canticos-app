@@ -3,13 +3,13 @@ import {
   RouterProvider,
   Route,
   createRoutesFromElements,
+  Navigate,
 } from 'react-router-dom'
 import { Toaster } from 'sonner'
 import { AuthProvider } from '@/lib/auth'
 import { PublicLayout } from '@/components/layout/PublicLayout'
 import { Layout } from '@/components/layout/Layout'
 import { AdminRoute } from '@/components/layout/AdminRoute'
-import { EditorRoute } from '@/components/layout/EditorRoute'
 import { PublicHome } from '@/pages/PublicHome'
 import { PublicCatalog } from '@/pages/PublicCatalog'
 import { PublicCalendar } from '@/pages/PublicCalendar'
@@ -35,18 +35,17 @@ const router = createBrowserRouter(
         <Route path="/catalogo" element={<PublicCatalog />} />
         <Route path="/calendario" element={<PublicCalendar />} />
         <Route path="/domingo/:date" element={<PublicScheduleView />} />
+        <Route path="/sugestoes" element={<Suggestions />} />
         <Route path="/privacidade" element={<Privacy />} />
         <Route path="/termos" element={<Terms />} />
       </Route>
 
       <Route path="/login" element={<Login />} />
 
-      {/* Approved editors + admins (suggestions) — match before generic /admin */}
-      <Route element={<EditorRoute />}>
-        <Route element={<Layout />}>
-          <Route path="/admin/sugestoes" element={<Suggestions />} />
-        </Route>
-      </Route>
+      <Route
+        path="/admin/sugestoes"
+        element={<Navigate to="/sugestoes" replace />}
+      />
 
       {/* Admin-only routes */}
       <Route element={<AdminRoute />}>

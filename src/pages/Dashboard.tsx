@@ -177,7 +177,7 @@ export function Dashboard() {
 
       {pendingCount > 0 && (
         <Link
-          to="/admin/sugestoes"
+          to="/sugestoes"
           className="block rounded-xl border border-warning/30 bg-warning/5 p-5 hover:bg-warning/10 transition-colors"
         >
           <div className="flex items-center gap-3">
