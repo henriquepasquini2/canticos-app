@@ -7,6 +7,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+## [Unreleased]
+
+### Security
+
+- Drive repertoire root URL/folder ID removed from source; configure `VITE_DRIVE_ROOT_FOLDER_URL` or `VITE_DRIVE_ROOT_FOLDER_ID` (see `.env.example`).
+- Added `docs/SECURITY.md` pre-public checklist.
+
+---
+
 ## [1.0.0] — 2026-04-13
 
 ### Added

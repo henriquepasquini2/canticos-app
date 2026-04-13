@@ -29,6 +29,8 @@ Credentials are under **Settings → API** in the Supabase dashboard.
 
 Optional: Google Drive sync uses `VITE_GOOGLE_API_KEY` and optional `VITE_DEFAULT_*` URLs — see `.env.example`.
 
+Set **`VITE_DRIVE_ROOT_FOLDER_URL`** or **`VITE_DRIVE_ROOT_FOLDER_ID`** so catalog / song links without a per-song folder still open your church’s Drive root (not committed in source).
+
 ### 4. Migrate existing data
 
 To import catalog and history from `.txt` files:
@@ -68,3 +70,4 @@ npm run dev
 
 - [CHANGELOG.md](./CHANGELOG.md) — release notes and historical summary
 - [supabase/migrations/README.md](./supabase/migrations/README.md) — database migration order
+- [docs/SECURITY.md](./docs/SECURITY.md) — security checklist before going public

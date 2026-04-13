@@ -3,9 +3,7 @@ import { Search, FolderOpen, ArrowUpDown, ArrowUp, ArrowDown, ExternalLink } fro
 import { useSongsWithStats } from '@/hooks/useSongs'
 import { formatDate } from '@/lib/utils'
 import { formatSongTitle, getDriveUrl } from '@/components/songs/SongName'
-
-const DRIVE_ROOT_URL =
-  'https://drive.google.com/drive/folders/1j2DvMakztJDxc-rwyRJFNGQ6QIEXdOAX'
+import { getDriveRootUrl } from '@/lib/driveRoot'
 
 type SortKey = 'number' | 'last_played' | 'executions'
 type SortDir = 'asc' | 'desc'
@@ -79,7 +77,7 @@ export function PublicCatalog() {
           </p>
         </div>
         <a
-          href={DRIVE_ROOT_URL}
+          href={getDriveRootUrl()}
           target="_blank"
           rel="noopener noreferrer"
           className="flex items-center gap-2 rounded-lg bg-bg-card border border-border px-3 py-2 text-sm text-text-secondary hover:text-text-primary hover:bg-bg-card-hover transition-colors shrink-0"

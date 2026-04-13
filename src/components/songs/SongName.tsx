@@ -1,14 +1,12 @@
 import { ExternalLink } from 'lucide-react'
 import { cn } from '@/lib/utils'
-
-const DRIVE_ROOT_URL =
-  'https://drive.google.com/drive/folders/1j2DvMakztJDxc-rwyRJFNGQ6QIEXdOAX'
+import { getDriveRootUrl } from '@/lib/driveRoot'
 
 export function getDriveUrl(driveFolderId: string | null | undefined): string {
   if (driveFolderId) {
     return `https://drive.google.com/drive/folders/${driveFolderId}`
   }
-  return DRIVE_ROOT_URL
+  return getDriveRootUrl()
 }
 
 export function formatSongTitle(number: number, name: string): string {
