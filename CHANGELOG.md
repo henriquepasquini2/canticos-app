@@ -9,6 +9,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Changed
+
+- **Suggestions** and **schedule comments** are no longer public: UI routes and RLS (`08_suggestions_comments_approved_only.sql`) require an **approved** or **admin** account. Approve/reject on suggestions remains **admin-only**. Public Sunday view shows the lineup only (no comment thread).
+
 ### Security
 
 - Drive repertoire root URL/folder ID removed from source; configure `VITE_DRIVE_ROOT_FOLDER_URL` or `VITE_DRIVE_ROOT_FOLDER_ID` (see `.env.example`).

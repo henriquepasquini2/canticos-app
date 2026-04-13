@@ -11,5 +11,6 @@ Run these in the Supabase **SQL Editor** for your project, **in this order** (on
 | 5 | `05_three_tier_access.sql` | Admin / approved / public read model |
 | 6 | `06_access_requests.sql` | Access request workflow (optional) |
 | 7 | `07_admins_select_own_row.sql` | `admins`: each user sees only their own row |
+| 8 | `08_suggestions_comments_approved_only.sql` | Suggestions & comments: no anonymous access; approved editors + admins only |
 
 If the database already existed, do not re-run older scripts blindly — verify policies in the Supabase dashboard first.

@@ -15,8 +15,8 @@ Short checklist before publishing the repo or sharing the app widely.
 
 | Item | Action |
 |------|--------|
-| Migration order | Run `supabase/migrations` through **`07_admins_select_own_row.sql`**. |
-| RLS | After migration **05**, anonymous users cannot edit schedules; **07** limits `admins` reads to the signed-in user’s row. |
+| Migration order | Run `supabase/migrations` through **`08_suggestions_comments_approved_only.sql`** when locking down suggestions/comments. |
+| RLS | After **05**, anonymous users cannot edit schedules; **07** limits `admins` reads; **08** removes anonymous access to `suggestions` and `comments` (approved editors only). |
 | `access_requests` | Apply **06** only if you use the access-request flow. |
 
 ## Google Cloud

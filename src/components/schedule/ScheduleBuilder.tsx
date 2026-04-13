@@ -29,7 +29,7 @@ export function ScheduleBuilder({ date }: ScheduleBuilderProps) {
   const { sunday, loading, refetch } = useSunday(date)
 
   const { comments, addComment, deleteComment, refetch: refetchComments } = useComments(sunday?.id)
-  const { isAdmin, isApproved } = useAuth()
+  const { isApproved } = useAuth()
   const canEdit = isApproved
   const [search, setSearch] = useState('')
   const [commentAuthor, setCommentAuthor] = useState('')
@@ -40,7 +40,7 @@ export function ScheduleBuilder({ date }: ScheduleBuilderProps) {
   const serverSongIdsRef = useRef<string>('[]')
 
   useRealtime('sunday_songs', refetch)
-  useRealtime('comments', refetchComments, !!sunday?.id)
+  useRealtime('comments', refetchComments, !!sunday?.id && isApproved)
 
   useEffect(() => {
     if (!sunday) {
@@ -235,53 +235,6 @@ export function ScheduleBuilder({ date }: ScheduleBuilderProps) {
               <p className="text-sm">Programação ainda não definida.</p>
             </div>
           )}
-        </div>
-
-        {/* Comments (read-only + add) */}
-        <div className="rounded-xl border border-border bg-bg-card p-4 sm:p-5">
-          <h2 className="text-base font-semibold mb-4">Comentários</h2>
-          <div className="space-y-3 mb-4 max-h-48 overflow-y-auto">
-            {comments.map((c) => (
-              <div key={c.id} className="rounded-lg bg-bg-secondary p-3">
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="text-xs font-medium text-accent-light">
-                    {c.author}
-                  </span>
-                  <span className="text-xs text-text-muted">
-                    {new Date(c.created_at).toLocaleDateString('pt-BR')}
-                  </span>
-                </div>
-                <p className="text-sm text-text-secondary">{c.content}</p>
-              </div>
-            ))}
-            {comments.length === 0 && (
-              <p className="text-xs text-text-muted">
-                Nenhum comentário ainda.
-              </p>
-            )}
-          </div>
-          <div className="space-y-2">
-            <input
-              type="text"
-              placeholder="Seu nome"
-              value={commentAuthor}
-              onChange={(e) => setCommentAuthor(e.target.value)}
-              className="w-full rounded-lg border border-border bg-bg-input px-3 py-2 text-sm text-text-primary placeholder:text-text-muted outline-none focus:border-accent-light"
-            />
-            <div className="flex gap-2">
-              <input
-                type="text"
-                placeholder="Escreva um comentário..."
-                value={commentText}
-                onChange={(e) => setCommentText(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleAddComment()}
-                className="flex-1 rounded-lg border border-border bg-bg-input px-3 py-2 text-sm text-text-primary placeholder:text-text-muted outline-none focus:border-accent-light"
-              />
-              <Button size="sm" onClick={handleAddComment}>
-                Enviar
-              </Button>
-            </div>
-          </div>
         </div>
       </div>
     )
@@ -499,7 +452,7 @@ export function ScheduleBuilder({ date }: ScheduleBuilderProps) {
                           {new Date(c.created_at).toLocaleDateString('pt-BR')}
                         </span>
                       </div>
-                      {isAdmin && (
+                      {isApproved && (
                         <button
                           onClick={async () => {
                             await deleteComment(c.id)

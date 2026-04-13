@@ -81,20 +81,22 @@ export function PublicLayout() {
               <CalendarDays size={16} />
               Calendário
             </NavLink>
-            <NavLink
-              to="/sugestoes"
-              className={({ isActive }) =>
-                cn(
-                  'flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
-                  isActive
-                    ? 'bg-accent-light/15 text-accent-light'
-                    : 'text-text-secondary hover:text-text-primary'
-                )
-              }
-            >
-              <Lightbulb size={16} />
-              Sugestões
-            </NavLink>
+            {isApproved && (
+              <NavLink
+                to="/admin/sugestoes"
+                className={({ isActive }) =>
+                  cn(
+                    'flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
+                    isActive
+                      ? 'bg-accent-light/15 text-accent-light'
+                      : 'text-text-secondary hover:text-text-primary'
+                  )
+                }
+              >
+                <Lightbulb size={16} />
+                Sugestões
+              </NavLink>
+            )}
           </nav>
 
           {isAdmin ? (
@@ -243,18 +245,20 @@ export function PublicLayout() {
             <CalendarDays size={20} />
             <span>Calendário</span>
           </NavLink>
-          <NavLink
-            to="/sugestoes"
-            className={({ isActive }) =>
-              cn(
-                'flex flex-col items-center gap-1 px-3 py-2.5 text-[10px] font-medium transition-colors',
-                isActive ? 'text-accent-light' : 'text-text-muted'
-              )
-            }
-          >
-            <Lightbulb size={20} />
-            <span>Sugestões</span>
-          </NavLink>
+          {isApproved && (
+            <NavLink
+              to="/admin/sugestoes"
+              className={({ isActive }) =>
+                cn(
+                  'flex flex-col items-center gap-1 px-3 py-2.5 text-[10px] font-medium transition-colors',
+                  isActive ? 'text-accent-light' : 'text-text-muted'
+                )
+              }
+            >
+              <Lightbulb size={20} />
+              <span>Sugestões</span>
+            </NavLink>
+          )}
         </div>
       </nav>
 

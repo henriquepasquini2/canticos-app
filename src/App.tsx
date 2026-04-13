@@ -9,6 +9,7 @@ import { AuthProvider } from '@/lib/auth'
 import { PublicLayout } from '@/components/layout/PublicLayout'
 import { Layout } from '@/components/layout/Layout'
 import { AdminRoute } from '@/components/layout/AdminRoute'
+import { EditorRoute } from '@/components/layout/EditorRoute'
 import { PublicHome } from '@/pages/PublicHome'
 import { PublicCatalog } from '@/pages/PublicCatalog'
 import { PublicCalendar } from '@/pages/PublicCalendar'
@@ -34,14 +35,20 @@ const router = createBrowserRouter(
         <Route path="/catalogo" element={<PublicCatalog />} />
         <Route path="/calendario" element={<PublicCalendar />} />
         <Route path="/domingo/:date" element={<PublicScheduleView />} />
-        <Route path="/sugestoes" element={<Suggestions />} />
         <Route path="/privacidade" element={<Privacy />} />
         <Route path="/termos" element={<Terms />} />
       </Route>
 
       <Route path="/login" element={<Login />} />
 
-      {/* Admin routes */}
+      {/* Approved editors + admins (suggestions) — match before generic /admin */}
+      <Route element={<EditorRoute />}>
+        <Route element={<Layout />}>
+          <Route path="/admin/sugestoes" element={<Suggestions />} />
+        </Route>
+      </Route>
+
+      {/* Admin-only routes */}
       <Route element={<AdminRoute />}>
         <Route element={<Layout />}>
           <Route path="/admin" element={<Dashboard />} />
@@ -51,7 +58,6 @@ const router = createBrowserRouter(
             path="/admin/domingo/:date"
             element={<ScheduleBuilderPage />}
           />
-          <Route path="/admin/sugestoes" element={<Suggestions />} />
           <Route path="/admin/insights" element={<Insights />} />
           <Route path="/admin/sync" element={<Sync />} />
           <Route path="/admin/usuarios" element={<Users />} />

@@ -7,6 +7,7 @@ import {
   Clock,
 } from 'lucide-react'
 import { useSuggestions } from '@/hooks/useSuggestions'
+import { useAuth } from '@/lib/auth'
 import { useRealtime } from '@/hooks/useRealtime'
 import { Button } from '@/components/ui/Button'
 import { Input, Textarea } from '@/components/ui/Input'
@@ -21,6 +22,7 @@ const statusConfig = {
 }
 
 export function Suggestions() {
+  const { isAdmin } = useAuth()
   const { suggestions, addSuggestion, updateStatus, refetch } = useSuggestions()
   useRealtime('suggestions', refetch)
 
@@ -154,8 +156,16 @@ export function Suggestions() {
               <SuggestionCard
                 key={s.id}
                 suggestion={s}
-                onApprove={() => handleStatus(s.id, 'aprovada')}
-                onReject={() => handleStatus(s.id, 'rejeitada')}
+                onApprove={
+                  isAdmin
+                    ? () => handleStatus(s.id, 'aprovada')
+                    : undefined
+                }
+                onReject={
+                  isAdmin
+                    ? () => handleStatus(s.id, 'rejeitada')
+                    : undefined
+                }
               />
             ))}
           </div>
