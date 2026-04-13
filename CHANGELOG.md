@@ -12,11 +12,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ### Changed
 
 - **Suggestions** and **schedule comments** are no longer public: UI routes and RLS (`08_suggestions_comments_approved_only.sql`) require an **approved** or **admin** account. Approve/reject on suggestions remains **admin-only**. Public Sunday view shows the lineup only (no comment thread).
+- **Editors (non-admin):** suggestions area uses a slim shell (badge “Equipe”, no admin sidebar, mobile nav: Início + Sugestões only).
+- **Suggestions:** author taken from the signed-in profile (name or email); rejected items hidden from the list.
+- **Schedule comments:** author taken from the signed-in profile; name field removed.
 
 ### Security
 
 - Drive repertoire root URL/folder ID removed from source; configure `VITE_DRIVE_ROOT_FOLDER_URL` or `VITE_DRIVE_ROOT_FOLDER_ID` (see `.env.example`).
-- Added `docs/SECURITY.md` pre-public checklist.
+- Removed `docs/SECURITY.md` from the repo.
 
 ---
 

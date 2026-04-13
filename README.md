@@ -70,4 +70,3 @@ npm run dev
 
 - [CHANGELOG.md](./CHANGELOG.md) — release notes and historical summary
 - [supabase/migrations/README.md](./supabase/migrations/README.md) — database migration order
-- [docs/SECURITY.md](./docs/SECURITY.md) — security checklist before going public

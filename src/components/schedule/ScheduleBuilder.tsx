@@ -20,6 +20,7 @@ import { toast } from 'sonner'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/lib/auth'
 import { isRlsOrAuthError } from '@/lib/supabaseErrors'
+import { getUserDisplayName } from '@/lib/userDisplayName'
 
 interface ScheduleBuilderProps {
   date: string
@@ -34,8 +35,12 @@ export function ScheduleBuilder({ date }: ScheduleBuilderProps) {
   /** Require resolved session + approved role so we never show the editor before auth finishes. */
   const canEdit = !!user && isApproved
   const [search, setSearch] = useState('')
-  const [commentAuthor, setCommentAuthor] = useState('')
   const [commentText, setCommentText] = useState('')
+
+  const commentAuthorLabel = useMemo(
+    () => getUserDisplayName(user) || user?.email || '',
+    [user]
+  )
 
   const [localSongIds, setLocalSongIds] = useState<number[]>([])
   const [saving, setSaving] = useState(false)
@@ -174,8 +179,13 @@ export function ScheduleBuilder({ date }: ScheduleBuilderProps) {
   }
 
   const handleAddComment = async () => {
-    if (!commentAuthor.trim() || !commentText.trim()) return
-    const { error } = await addComment(commentAuthor.trim(), commentText.trim())
+    if (!commentText.trim()) return
+    const author = commentAuthorLabel.trim()
+    if (!author) {
+      toast.error('Não foi possível identificar seu usuário. Atualize a página.')
+      return
+    }
+    const { error } = await addComment(author, commentText.trim())
     if (error) {
       if (isRlsOrAuthError(error)) {
         toast.error(
@@ -496,27 +506,22 @@ export function ScheduleBuilder({ date }: ScheduleBuilderProps) {
                   </p>
                 )}
               </div>
-              <div className="space-y-2">
+              <p className="text-xs text-text-muted mb-2">
+                Comentando como{' '}
+                <span className="text-text-secondary">{commentAuthorLabel || '…'}</span>
+              </p>
+              <div className="flex gap-2">
                 <input
                   type="text"
-                  placeholder="Seu nome"
-                  value={commentAuthor}
-                  onChange={(e) => setCommentAuthor(e.target.value)}
-                  className="w-full rounded-lg border border-border bg-bg-input px-3 py-2 text-sm text-text-primary placeholder:text-text-muted outline-none focus:border-accent-light"
+                  placeholder="Escreva um comentário..."
+                  value={commentText}
+                  onChange={(e) => setCommentText(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleAddComment()}
+                  className="flex-1 rounded-lg border border-border bg-bg-input px-3 py-2 text-sm text-text-primary placeholder:text-text-muted outline-none focus:border-accent-light"
                 />
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    placeholder="Escreva um comentário..."
-                    value={commentText}
-                    onChange={(e) => setCommentText(e.target.value)}
-                    onKeyDown={(e) => e.key === 'Enter' && handleAddComment()}
-                    className="flex-1 rounded-lg border border-border bg-bg-input px-3 py-2 text-sm text-text-primary placeholder:text-text-muted outline-none focus:border-accent-light"
-                  />
-                  <Button size="sm" onClick={handleAddComment}>
-                    Enviar
-                  </Button>
-                </div>
+                <Button size="sm" onClick={handleAddComment}>
+                  Enviar
+                </Button>
               </div>
             </div>
           </div>

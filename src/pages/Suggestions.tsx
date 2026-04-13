@@ -15,6 +15,7 @@ import { Badge } from '@/components/ui/Badge'
 import { toast } from 'sonner'
 import { isSafeHttpUrl } from '@/lib/safeUrl'
 import { isRlsOrAuthError } from '@/lib/supabaseErrors'
+import { getUserDisplayName } from '@/lib/userDisplayName'
 
 const statusConfig = {
   pendente: { label: 'Pendente', variant: 'warning' as const, icon: Clock },
@@ -23,14 +24,13 @@ const statusConfig = {
 }
 
 export function Suggestions() {
-  const { isAdmin } = useAuth()
+  const { isAdmin, user } = useAuth()
   const { suggestions, addSuggestion, updateStatus, refetch } = useSuggestions()
   useRealtime('suggestions', refetch)
 
   const [form, setForm] = useState({
     song_name: '',
     artist: '',
-    suggested_by: '',
     reason: '',
     link: '',
   })
@@ -38,8 +38,14 @@ export function Suggestions() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!form.song_name.trim() || !form.suggested_by.trim()) {
-      toast.error('Preencha o nome da música e seu nome')
+    if (!form.song_name.trim()) {
+      toast.error('Preencha o nome da música')
+      return
+    }
+
+    const suggestedBy = getUserDisplayName(user)
+    if (!suggestedBy) {
+      toast.error('Não foi possível identificar seu usuário. Entre de novo.')
       return
     }
 
@@ -53,7 +59,7 @@ export function Suggestions() {
     const { error } = await addSuggestion({
       song_name: form.song_name.trim(),
       artist: form.artist.trim() || undefined,
-      suggested_by: form.suggested_by.trim(),
+      suggested_by: suggestedBy,
       reason: form.reason.trim() || undefined,
       link: linkTrim || undefined,
     })
@@ -68,7 +74,7 @@ export function Suggestions() {
       }
     } else {
       toast.success('Sugestão enviada!')
-      setForm({ song_name: '', artist: '', suggested_by: '', reason: '', link: '' })
+      setForm({ song_name: '', artist: '', reason: '', link: '' })
     }
     setSubmitting(false)
   }
@@ -91,8 +97,9 @@ export function Suggestions() {
     toast.success(`Sugestão ${status}`)
   }
 
-  const pending = suggestions.filter((s) => s.status === 'pendente')
-  const resolved = suggestions.filter((s) => s.status !== 'pendente')
+  const visible = suggestions.filter((s) => s.status !== 'rejeitada')
+  const pending = visible.filter((s) => s.status === 'pendente')
+  const approved = visible.filter((s) => s.status === 'aprovada')
 
   return (
     <div className="space-y-8 max-w-4xl">
@@ -130,24 +137,18 @@ export function Suggestions() {
           />
         </div>
 
-        <div className="grid sm:grid-cols-2 gap-4">
-          <Input
-            id="suggested_by"
-            label="Seu nome *"
-            placeholder="Seu nome"
-            value={form.suggested_by}
-            onChange={(e) =>
-              setForm({ ...form, suggested_by: e.target.value })
-            }
-          />
-          <Input
-            id="link"
-            label="Link (YouTube, cifra, etc.)"
-            placeholder="https://..."
-            value={form.link}
-            onChange={(e) => setForm({ ...form, link: e.target.value })}
-          />
-        </div>
+        <Input
+          id="link"
+          label="Link (YouTube, cifra, etc.)"
+          placeholder="https://..."
+          value={form.link}
+          onChange={(e) => setForm({ ...form, link: e.target.value })}
+        />
+        {user && (
+          <p className="text-xs text-text-muted">
+            Enviando como <span className="text-text-secondary">{getUserDisplayName(user) || user.email}</span>
+          </p>
+        )}
 
         <Textarea
           id="reason"
@@ -189,24 +190,28 @@ export function Suggestions() {
         </div>
       )}
 
-      {/* Resolved suggestions */}
-      {resolved.length > 0 && (
+      {/* Approved suggestions (rejected are hidden) */}
+      {approved.length > 0 && (
         <div>
           <h2 className="text-lg font-semibold mb-4">
-            Resolvidas ({resolved.length})
+            Aprovadas ({approved.length})
           </h2>
           <div className="space-y-3">
-            {resolved.map((s) => (
+            {approved.map((s) => (
               <SuggestionCard key={s.id} suggestion={s} />
             ))}
           </div>
         </div>
       )}
 
-      {suggestions.length === 0 && (
+      {visible.length === 0 && (
         <div className="text-center py-12 text-text-muted">
           <Lightbulb size={40} className="mx-auto mb-3 opacity-30" />
-          <p>Nenhuma sugestão ainda. Seja o primeiro!</p>
+          <p>
+            {suggestions.length === 0
+              ? 'Nenhuma sugestão ainda. Seja o primeiro!'
+              : 'Não há sugestões pendentes ou aprovadas para exibir.'}
+          </p>
         </div>
       )}
     </div>

@@ -3,12 +3,12 @@ import { LogOut, Globe } from 'lucide-react'
 import { useAuth } from '@/lib/auth'
 
 export function Header() {
-  const { user, signOut } = useAuth()
+  const { user, signOut, isAdmin } = useAuth()
 
   return (
     <header className="sticky top-0 z-40 flex h-16 items-center justify-between border-b border-border bg-bg-secondary/80 backdrop-blur-md px-4 lg:px-6">
       <Link
-        to="/admin"
+        to={isAdmin ? '/admin' : '/'}
         className="flex items-center gap-3 hover:opacity-80 transition-opacity"
       >
         <img
@@ -20,7 +20,7 @@ export function Header() {
           <h1 className="text-base font-bold leading-tight tracking-tight">
             Cânticos
             <span className="ml-1.5 text-[10px] bg-accent-light/20 text-accent-light px-1.5 py-0.5 rounded-full font-medium align-middle">
-              Admin
+              {isAdmin ? 'Admin' : 'Equipe'}
             </span>
           </h1>
           <p className="text-[10px] text-text-muted leading-none">
