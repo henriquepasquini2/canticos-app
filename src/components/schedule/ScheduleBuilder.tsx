@@ -10,7 +10,11 @@ import { Search, Music, Save, AlertTriangle, Plus, ExternalLink, Trash2 } from '
 import { useSongsWithStats } from '@/hooks/useSongs'
 import { useSunday } from '@/hooks/useSundays'
 import { useComments } from '@/hooks/useComments'
-import { useMultiRealtime, REALTIME, LIVE_DATA_POLL_MS } from '@/hooks/useRealtime'
+import {
+  useMultiRealtime,
+  REALTIME,
+  SCHEDULE_BUILDER_POLL_MS,
+} from '@/hooks/useRealtime'
 import { DraggableSong } from './DraggableSong'
 import { Button } from '@/components/ui/Button'
 import { Badge } from '@/components/ui/Badge'
@@ -55,7 +59,8 @@ export function ScheduleBuilder({ date }: ScheduleBuilderProps) {
   }, [refetch, refetchSongs, refetchComments])
 
   useMultiRealtime(REALTIME.scheduleBuilder, refreshScheduleData, !!date, {
-    pollIntervalMs: LIVE_DATA_POLL_MS,
+    pollIntervalMs: SCHEDULE_BUILDER_POLL_MS,
+    pollWhenHidden: true,
   })
 
   useEffect(() => {

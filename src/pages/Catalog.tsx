@@ -1,7 +1,7 @@
 import { useState, useMemo, useCallback } from 'react'
 import { Search, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react'
 import { useSongsWithStats } from '@/hooks/useSongs'
-import { useMultiRealtime, REALTIME } from '@/hooks/useRealtime'
+import { useMultiRealtime, REALTIME, LIVE_DATA_POLL_MS } from '@/hooks/useRealtime'
 import { FilterBar } from '@/components/ui/FilterBar'
 import { Badge } from '@/components/ui/Badge'
 import { SongDetail } from '@/components/songs/SongDetail'
@@ -25,7 +25,10 @@ export function Catalog() {
     void refetch()
   }, [refetch])
 
-  useMultiRealtime(REALTIME.songsAndLinks, refreshCatalog, true)
+  useMultiRealtime(REALTIME.songsAndLinks, refreshCatalog, true, {
+    pollIntervalMs: LIVE_DATA_POLL_MS,
+    pollWhenHidden: true,
+  })
   const [filter, setFilter] = useState<SongFilter>('all')
   const [search, setSearch] = useState('')
   const [selectedSong, setSelectedSong] = useState<SongWithStats | null>(null)

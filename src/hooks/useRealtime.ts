@@ -7,6 +7,12 @@ const DEBOUNCE_MS = 280
 /** Refetch while tab is visible if postgres_changes does not fire (Supabase/RLS/network). */
 export const LIVE_DATA_POLL_MS = 8_000
 
+/**
+ * Montar Domingo: lista “disponíveis” depende de `songs.is_playable` / `is_ready`.
+ * Intervalo um pouco menor que o padrão para acompanhar edições no catálogo.
+ */
+export const SCHEDULE_BUILDER_POLL_MS = 5_000
+
 type RealtimeOptions = {
   showToast?: boolean
   /**
@@ -14,6 +20,12 @@ type RealtimeOptions = {
    * Use on pages where live updates matter (suggestions, domingo).
    */
   pollIntervalMs?: number
+  /**
+   * When true, keep polling even if the tab is in the background (e.g. admin edits
+   * o catálogo noutra aba enquanto Montar Domingo fica aberto).
+   * @default false
+   */
+  pollWhenHidden?: boolean
 }
 
 function tablesKey(tables: readonly string[]) {
@@ -60,6 +72,7 @@ export function useMultiRealtime(
 ) {
   const showToast = options?.showToast ?? false
   const pollIntervalMs = options?.pollIntervalMs
+  const pollWhenHidden = options?.pollWhenHidden ?? false
   const onUpdateRef = useRef(onUpdate)
   onUpdateRef.current = onUpdate
   const id = useId().replace(/:/g, '')
@@ -69,12 +82,12 @@ export function useMultiRealtime(
   useEffect(() => {
     if (!pollIntervalMs || !enabled || !key) return
     const tick = () => {
-      if (document.visibilityState !== 'visible') return
+      if (!pollWhenHidden && document.visibilityState !== 'visible') return
       onUpdateRef.current()
     }
     const interval = setInterval(tick, pollIntervalMs)
     return () => clearInterval(interval)
-  }, [enabled, key, pollIntervalMs])
+  }, [enabled, key, pollIntervalMs, pollWhenHidden])
 
   useEffect(() => {
     if (!pollIntervalMs || !enabled || !key) return
