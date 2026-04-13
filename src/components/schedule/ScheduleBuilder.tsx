@@ -45,6 +45,8 @@ export function ScheduleBuilder({ date }: ScheduleBuilderProps) {
   const [localSongIds, setLocalSongIds] = useState<number[]>([])
   const [saving, setSaving] = useState(false)
   const serverSongIdsRef = useRef<string>('[]')
+  /** True after DnD / add changes local programação; false after save or troca de data. */
+  const scheduleDirtyRef = useRef(false)
 
   const refreshScheduleData = useCallback(() => {
     void refetch()
@@ -57,14 +59,21 @@ export function ScheduleBuilder({ date }: ScheduleBuilderProps) {
   })
 
   useEffect(() => {
+    scheduleDirtyRef.current = false
+  }, [date])
+
+  useEffect(() => {
     if (!sunday) {
       setLocalSongIds([])
       serverSongIdsRef.current = '[]'
+      scheduleDirtyRef.current = false
       return
     }
     const ids = sunday.sunday_songs.map((ss) => ss.song_id)
     serverSongIdsRef.current = JSON.stringify(ids)
-    setLocalSongIds(ids)
+    if (!scheduleDirtyRef.current) {
+      setLocalSongIds(ids)
+    }
   }, [sunday])
 
   const hasChanges = useMemo(
@@ -113,12 +122,14 @@ export function ScheduleBuilder({ date }: ScheduleBuilderProps) {
     // Available -> Schedule: add at end
     if (source.droppableId === 'available' && destination.droppableId === 'schedule') {
       const songId = parseInt(draggableId.replace('avail-', ''), 10)
+      scheduleDirtyRef.current = true
       setLocalSongIds((prev) => [...prev, songId])
       return
     }
 
     // Schedule -> Available: remove
     if (source.droppableId === 'schedule' && destination.droppableId === 'available') {
+      scheduleDirtyRef.current = true
       setLocalSongIds((prev) => prev.filter((_, i) => i !== source.index))
       return
     }
@@ -126,6 +137,7 @@ export function ScheduleBuilder({ date }: ScheduleBuilderProps) {
     // Reorder within schedule
     if (source.droppableId === 'schedule' && destination.droppableId === 'schedule') {
       if (source.index === destination.index) return
+      scheduleDirtyRef.current = true
       setLocalSongIds((prev) => {
         const next = [...prev]
         const [moved] = next.splice(source.index, 1)
@@ -174,6 +186,7 @@ export function ScheduleBuilder({ date }: ScheduleBuilderProps) {
         }
       }
 
+      scheduleDirtyRef.current = false
       await refetch()
       await refetchSongs()
       toast.success('Programação salva!')
@@ -416,6 +429,7 @@ export function ScheduleBuilder({ date }: ScheduleBuilderProps) {
                           <button
                             onClick={(e) => {
                               e.stopPropagation()
+                              scheduleDirtyRef.current = true
                               setLocalSongIds((prev) => [...prev, song.id])
                             }}
                             className="rounded-md p-1.5 text-text-muted hover:text-success hover:bg-success/10 transition-colors cursor-pointer shrink-0"
@@ -480,6 +494,7 @@ export function ScheduleBuilder({ date }: ScheduleBuilderProps) {
                         index={index}
                         sundaySongId={song.id}
                         onRemove={() => {
+                          scheduleDirtyRef.current = true
                           setLocalSongIds((prev) =>
                             prev.filter((_, i) => i !== index)
                           )
