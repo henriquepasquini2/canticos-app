@@ -19,6 +19,7 @@ import { formatSongTitle, getDriveUrl } from '@/components/songs/SongName'
 import { toast } from 'sonner'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/lib/auth'
+import { isRlsOrAuthError } from '@/lib/supabaseErrors'
 
 interface ScheduleBuilderProps {
   date: string
@@ -29,8 +30,9 @@ export function ScheduleBuilder({ date }: ScheduleBuilderProps) {
   const { sunday, loading, refetch } = useSunday(date)
 
   const { comments, addComment, deleteComment, refetch: refetchComments } = useComments(sunday?.id)
-  const { isApproved } = useAuth()
-  const canEdit = isApproved
+  const { user, isApproved, loading: authLoading } = useAuth()
+  /** Require resolved session + approved role so we never show the editor before auth finishes. */
+  const canEdit = !!user && isApproved
   const [search, setSearch] = useState('')
   const [commentAuthor, setCommentAuthor] = useState('')
   const [commentText, setCommentText] = useState('')
@@ -40,7 +42,7 @@ export function ScheduleBuilder({ date }: ScheduleBuilderProps) {
   const serverSongIdsRef = useRef<string>('[]')
 
   useRealtime('sunday_songs', refetch)
-  useRealtime('comments', refetchComments, !!sunday?.id && isApproved)
+  useRealtime('comments', refetchComments, !!sunday?.id && canEdit)
 
   useEffect(() => {
     if (!sunday) {
@@ -173,12 +175,22 @@ export function ScheduleBuilder({ date }: ScheduleBuilderProps) {
 
   const handleAddComment = async () => {
     if (!commentAuthor.trim() || !commentText.trim()) return
-    await addComment(commentAuthor.trim(), commentText.trim())
+    const { error } = await addComment(commentAuthor.trim(), commentText.trim())
+    if (error) {
+      if (isRlsOrAuthError(error)) {
+        toast.error(
+          'Não foi possível comentar: entre com uma conta autorizada ou atualize a página se a sessão expirou.'
+        )
+      } else {
+        toast.error('Não foi possível adicionar o comentário')
+      }
+      return
+    }
     setCommentText('')
     toast.success('Comentário adicionado')
   }
 
-  if (loading) {
+  if (loading || authLoading) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="animate-pulse text-text-muted">Carregando...</div>
@@ -452,10 +464,20 @@ export function ScheduleBuilder({ date }: ScheduleBuilderProps) {
                           {new Date(c.created_at).toLocaleDateString('pt-BR')}
                         </span>
                       </div>
-                      {isApproved && (
+                      {canEdit && (
                         <button
                           onClick={async () => {
-                            await deleteComment(c.id)
+                            const { error } = await deleteComment(c.id)
+                            if (error) {
+                              if (isRlsOrAuthError(error)) {
+                                toast.error(
+                                  'Sem permissão ou sessão expirada. Atualize a página.'
+                                )
+                              } else {
+                                toast.error('Não foi possível remover o comentário')
+                              }
+                              return
+                            }
                             toast.success('Comentário removido')
                           }}
                           className="rounded p-1 text-text-muted hover:text-danger hover:bg-danger/10 transition-colors cursor-pointer"

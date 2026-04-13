@@ -14,6 +14,7 @@ import { Input, Textarea } from '@/components/ui/Input'
 import { Badge } from '@/components/ui/Badge'
 import { toast } from 'sonner'
 import { isSafeHttpUrl } from '@/lib/safeUrl'
+import { isRlsOrAuthError } from '@/lib/supabaseErrors'
 
 const statusConfig = {
   pendente: { label: 'Pendente', variant: 'warning' as const, icon: Clock },
@@ -58,7 +59,13 @@ export function Suggestions() {
     })
 
     if (error) {
-      toast.error('Erro ao enviar sugestão')
+      if (isRlsOrAuthError(error)) {
+        toast.error(
+          'Não foi possível enviar: entre com uma conta autorizada ou atualize a página se a sessão expirou.'
+        )
+      } else {
+        toast.error('Erro ao enviar sugestão')
+      }
     } else {
       toast.success('Sugestão enviada!')
       setForm({ song_name: '', artist: '', suggested_by: '', reason: '', link: '' })
@@ -70,7 +77,17 @@ export function Suggestions() {
     id: number,
     status: 'aprovada' | 'rejeitada'
   ) => {
-    await updateStatus(id, status)
+    const { error } = await updateStatus(id, status)
+    if (error) {
+      if (isRlsOrAuthError(error)) {
+        toast.error(
+          'Sem permissão ou sessão expirada. Atualize a página e entre de novo.'
+        )
+      } else {
+        toast.error('Não foi possível atualizar o status')
+      }
+      return
+    }
     toast.success(`Sugestão ${status}`)
   }
 
