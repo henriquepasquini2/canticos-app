@@ -13,7 +13,7 @@ npm install
 ### 2. Criar projeto no Supabase
 
 1. Acesse [supabase.com](https://supabase.com) e crie um projeto gratuito
-2. No **SQL Editor**, execute o conteúdo de `supabase-schema.sql`
+2. No **SQL Editor**, execute as migrações em `supabase/migrations/` na ordem indicada em `supabase/migrations/README.md` (começando por `01_initial.sql`)
 3. Em **Database > Replication**, ative o realtime nas tabelas: `sundays`, `sunday_songs`, `suggestions`, `comments`
 
 ### 3. Configurar variáveis de ambiente
