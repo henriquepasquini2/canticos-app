@@ -1,62 +1,62 @@
 # Changelog
 
-Todas as alterações relevantes do **Cânticos** (IP Filadelfia).  
-O repositório foi, num dado momento, **reiniciado com um único commit inicial** para não versionar dados sensíveis no histórico Git. As entradas abaixo **documentam a evolução que existia antes dessa consolidação** e o estado atual, para referência futura.
+All notable changes to **Cânticos** (IP Filadelfia, Brazil).  
+At one point the Git history was **reset to a single initial commit** so sensitive data would not remain in commit history. The entries below **capture the evolution that existed before that squash** plus the consolidated state, for future reference.
 
-O formato inspira-se em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/).
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
 ## [1.0.0] — 2026-04-13
 
-### Adicionado
+### Added
 
-- Aplicação **React + TypeScript + Vite** com tema escuro e identidade **IPB** (logo da igreja).
-- Backend **Supabase** (PostgreSQL, Auth, Realtime) para cânticos, domingos, vínculos domingo–música, sugestões e comentários.
-- **Rotas públicas:** início (próximo domingo + recentes), catálogo, calendário, vista por domingo (`/domingo/:data`), sugestões de músicas.
-- **Área autenticada:** painel admin, catálogo completo, calendário, montador de domingo, insights, sincronização, gestão de utilizadores.
-- **Controlo de acesso em três níveis:** administrador (tabela `admins`), utilizador aprovado (`approved_users`), leitura pública anónima.
-- **Login com Google** (Supabase Auth); mensagens para quem não está autorizado a editar.
-- **Pedidos de acesso** (quem não está na lista pode pedir inclusão) — migração `06_access_requests.sql`.
-- **Integração Google Drive:** links por cântico (`drive_folder_id`), pasta raiz configurável; na Sync, deteção de pastas no Drive (API key no cliente, com restrições recomendadas no Google Cloud).
-- **Importação de cronograma** a partir de **export CSV da Google Sheets** (sem escrita de volta para a planilha).
-- **Montador de domingo** com arrastar e largar, botão **Salvar**, aviso de alterações não guardadas e **confirmação ao sair** (`useBlocker` com data router).
-- Páginas **Política de privacidade** (`/privacidade`) e **Termos de uso** (`/termos`) e links no layout público / início (branding OAuth Google).
-- Migrações SQL organizadas em **`supabase/migrations/`** com ordem numerada (`01`–`07`) e `README` local.
+- **React + TypeScript + Vite** app with dark theme and **IPB** church branding.
+- **Supabase** backend (PostgreSQL, Auth, Realtime) for songs, Sundays, Sunday–song links, suggestions, and comments.
+- **Public routes:** home (next Sunday + recent), catalog, calendar, per-Sunday view (`/domingo/:date`), song suggestions.
+- **Authenticated area:** admin dashboard, full catalog, calendar, schedule builder, insights, sync, user management.
+- **Three-tier access:** admin (`admins`), approved user (`approved_users`), anonymous public read.
+- **Google sign-in** (Supabase Auth); messaging for users not authorized to edit.
+- **Access requests** for users not yet on the allowlist — migration `06_access_requests.sql`.
+- **Google Drive integration:** per-song folder links (`drive_folder_id`), configurable root folder; Sync page lists Drive folders (browser API key — restrict in Google Cloud).
+- **Schedule import** from **Google Sheets CSV export** (no write-back to the sheet).
+- **Schedule builder** with drag-and-drop, **Save** button, unsaved-changes banner, and **leave confirmation** (`useBlocker` with a data router).
+- **Privacy** (`/privacidade`) and **Terms** (`/termos`) pages plus footer / home links (Google OAuth branding).
+- SQL migrations under **`supabase/migrations/`** with numeric order (`01`–`07`) and a local README.
 
-### Alterado
+### Changed
 
-- Textos de login: de “área administrativa / líderes” para **equipe de louvor** e contas **autorizadas para edição**.
-- **Calendário** (público e admin): células da grelha mais altas quando há músicas; lista em mobile com cânticos em coluna, texto maior e badges mais legíveis.
-- **Domínio de produção Vercel:** `canticosipfiladelfiasc.vercel.app` (projeto renomeado; removido domínio antigo duplicado).
-- **Catálogo público:** ordenação por colunas, linhas/partituras ligadas ao Drive por cântico.
-- Vários cartões e listas passam a usar **links para o Drive** com ícone de link externo onde faz sentido.
+- Login copy: from “admin area / leaders only” to **worship team** and **accounts authorized to edit**.
+- **Calendar** (public and admin): taller grid cells when songs exist; mobile list stacks songs with larger type and clearer badges.
+- **Production Vercel hostname:** `canticosipfiladelfiasc.vercel.app` (project renamed; old duplicate hostname removed).
+- **Public catalog:** sortable columns; sheet links per song via Drive.
+- Cards and lists use **Drive links** with external-link icons where appropriate.
 
-### Corrigido
+### Fixed
 
-- Erro **`useBlocker` fora de data router** — migração para `createBrowserRouter` / `RouterProvider`.
-- Crash no montador quando dados ainda não tinham carregado (filtro de músicas agendadas).
-- Exibição de **“dias atrás” negativos** para domingos futuros nos cartões de música.
-- **Ícone de link externo** dentro de badges/cartões (alinhamento visual).
-- Pedidos de acesso: tolerância quando a tabela `access_requests` ainda não existe (schema não aplicado).
+- **`useBlocker` outside data router** — switched to `createBrowserRouter` / `RouterProvider`.
+- Schedule builder crash before data finished loading (scheduled-songs filter).
+- **Negative “days ago”** for future Sundays on song cards.
+- **External-link icon** placement inside badges/cards.
+- Access requests: graceful handling when `access_requests` table is missing (schema not applied).
 
-### Removido
+### Removed
 
-- Funcionalidade de **atualizar a planilha Google Sheets** a partir da app (mantida só a **importação** CSV).
+- **Writing updates back to Google Sheets** from the app (CSV **import** only remains).
 
-### Segurança
+### Security
 
-- Ficheiros SQL de exemplo **sem e-mails de admin nem IDs reais** de planilha/Drive no Git; inserções documentadas para execução manual no Supabase.
-- URLs padrão da Sync apenas via **variáveis de ambiente opcionais** (`VITE_DEFAULT_*`), não hardcoded no código.
-- **Validação de links** em sugestões: só `http:` / `https:` (evita `javascript:` etc.).
-- Cabeçalhos em **`vercel.json`:** HSTS, `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy`.
-- **RLS (v5):** escrita em cronograma apenas para **autenticados aprovados**; músicas e definições sensíveis restritas a **admin**; remoção de leitura anónima da tabela `admins` (v5).
-- **RLS (v7):** cada utilizador autenticado só lê **a própria linha** em `admins` (evita enumerar todos os admins).
-- Recomendação documentada: **chave Google** com restrição por **referrer** (produção) e, em dev, **chave separada** com `localhost` se necessário.
+- SQL samples in Git **without real admin emails or live Sheet/Drive IDs**; sensitive inserts documented for manual Supabase runs.
+- Sync default URLs only via **optional env vars** (`VITE_DEFAULT_*`), not hardcoded in source.
+- **Suggestion link validation:** `http:` / `https:` only (blocks `javascript:` etc.).
+- **`vercel.json` headers:** HSTS, `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy`.
+- **RLS (migration 05):** schedule writes for **approved authenticated** users only; sensitive song/settings changes **admin-only**; removed anonymous read on `admins`.
+- **RLS (migration 07):** each authenticated user reads **only their own row** in `admins` (no full-table enumeration).
+- Documented practice: **Google API key** restricted by **HTTP referrer** in production; separate dev key with `localhost` if needed.
 
 ---
 
-## Notas
+## Notes
 
-- **Ordem das migrações:** ver `supabase/migrations/README.md`.
-- Versões futuras podem usar secções `[Unreleased]` e datas reais de release conforme forem publicando.
+- **Migration order:** see `supabase/migrations/README.md`.
+- Future releases can add `[Unreleased]` sections and dated versions as you ship.

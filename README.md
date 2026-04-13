@@ -1,63 +1,70 @@
-# Cânticos - Cronograma de Louvor IPB
+# Cânticos — Worship Schedule (IPB)
 
-Plataforma para gerenciamento do cronograma de louvor da Igreja Presbiteriana do Brasil.
+Web app for managing the worship music schedule for a Presbyterian Church in Brazil (IP Filadelfia, São Carlos/SP).
 
 ## Setup
 
-### 1. Instalar dependências
+### 1. Install dependencies
 
 ```bash
 npm install
 ```
 
-### 2. Criar projeto no Supabase
+### 2. Create a Supabase project
 
-1. Acesse [supabase.com](https://supabase.com) e crie um projeto gratuito
-2. No **SQL Editor**, execute as migrações em `supabase/migrations/` na ordem indicada em `supabase/migrations/README.md` (começando por `01_initial.sql`)
-3. Em **Database > Replication**, ative o realtime nas tabelas: `sundays`, `sunday_songs`, `suggestions`, `comments`
+1. Go to [supabase.com](https://supabase.com) and create a project.
+2. In the **SQL Editor**, run the migrations in `supabase/migrations/` in the order listed in `supabase/migrations/README.md`, starting with `01_initial.sql`.
+3. Under **Database → Replication**, enable Realtime for: `sundays`, `sunday_songs`, `suggestions`, `comments`.
 
-### 3. Configurar variáveis de ambiente
+### 3. Environment variables
 
-Copie `.env.example` para `.env` e preencha com suas credenciais do Supabase:
+Copy `.env.example` to `.env` and fill in your Supabase credentials:
 
 ```
-VITE_SUPABASE_URL=https://seu-projeto.supabase.co
-VITE_SUPABASE_ANON_KEY=sua-anon-key
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_ANON_KEY=your-anon-key
 ```
 
-As credenciais estão em **Settings > API** no dashboard do Supabase.
+Credentials are under **Settings → API** in the Supabase dashboard.
 
-### 4. Migrar dados existentes
+Optional: Google Drive sync uses `VITE_GOOGLE_API_KEY` and optional `VITE_DEFAULT_*` URLs — see `.env.example`.
 
-Para importar o catálogo e histórico dos arquivos `.txt`:
+### 4. Migrate existing data
+
+To import catalog and history from `.txt` files:
 
 ```bash
 npx tsx scripts/migrate-data.ts
 ```
 
-Os arquivos de dados (`canticos.txt`, `cantados_*.txt`) devem estar na pasta pai (`../`).
+Data files (`canticos.txt`, `cantados_*.txt`) should live in the parent folder (`../`).
 
-### 5. Rodar em desenvolvimento
+### 5. Development server
 
 ```bash
 npm run dev
 ```
 
-## Funcionalidades
+## Features
 
-- **Dashboard** - Visão geral com próximo domingo, stats e resumo recente
-- **Catálogo** - Todas as músicas com filtros, busca e histórico detalhado
-- **Calendário** - Visualização mensal com navegação
-- **Schedule Builder** - Drag-and-drop para montar o cronograma de cada domingo
-- **Sugestões** - Qualquer pessoa pode sugerir novas músicas
-- **Insights** - Análise de diversidade, músicas esquecidas, mais tocadas, etc.
-- **Tempo Real** - Alterações refletem instantaneamente para todos os usuários
-- **Comentários** - Discussão por domingo
+- **Dashboard** — Next Sunday, stats, recent summaries (admin).
+- **Catalog** — All songs with filters, search, and play history.
+- **Calendar** — Month view with navigation.
+- **Schedule builder** — Drag-and-drop to build each Sunday’s lineup.
+- **Suggestions** — Anyone can suggest new songs.
+- **Insights** — Diversity, “forgotten” songs, most played, etc. (admin).
+- **Realtime** — Changes propagate to connected clients.
+- **Comments** — Per-Sunday discussion threads.
 
-## Tech Stack
+## Tech stack
 
 - React + TypeScript + Vite
-- Tailwind CSS v4 (tema escuro)
-- Supabase (PostgreSQL + Realtime)
-- @hello-pangea/dnd (drag and drop)
+- Tailwind CSS v4 (dark theme)
+- Supabase (PostgreSQL + Realtime + Auth)
+- @hello-pangea/dnd
 - date-fns, Lucide React, Sonner
+
+## Documentation
+
+- [CHANGELOG.md](./CHANGELOG.md) — release notes and historical summary
+- [supabase/migrations/README.md](./supabase/migrations/README.md) — database migration order
