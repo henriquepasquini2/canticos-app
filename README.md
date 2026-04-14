@@ -49,7 +49,7 @@ npm run dev
 
 ## Repository and Vercel (Git)
 
-Source repository: **[github.com/henriquepasquini2/canticos-app](https://github.com/henriquepasquini2/canticos-app)** (private). Default branch: `master`.
+Source repository: **[github.com/henriquepasquini2/canticos-app](https://github.com/henriquepasquini2/canticos-app)** (public). Default branch: `master`.
 
 ### Link this repo to an existing Vercel project
 
