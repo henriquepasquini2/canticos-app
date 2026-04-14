@@ -47,6 +47,30 @@ Data files (`canticos.txt`, `cantados_*.txt`) should live in the parent folder (
 npm run dev
 ```
 
+## Repository and Vercel (Git)
+
+Source repository: **[github.com/henriquepasquini2/canticos-app](https://github.com/henriquepasquini2/canticos-app)** (private). Default branch: `master`.
+
+### Link this repo to an existing Vercel project
+
+The Vercel CLI (`npx vercel git connect …`) only succeeds after the **Vercel** GitHub App can access the repository.
+
+1. **GitHub** (account that owns the repo) → **Settings** → **Applications** → **Installed GitHub Apps** → **Vercel** → **Configure**.
+2. Under **Repository access**, choose **Only select repositories** and include **`canticos-app`** (or *All repositories* if you accept that).
+3. **Vercel** → your project → **Settings** → **Git** → **Connect Git Repository** → pick `henriquepasquini2/canticos-app`, production branch **`master`**, root **`.`** (repo root is the app).
+
+Alternatively, from this directory after step 1–2:
+
+```bash
+npx vercel git connect https://github.com/henriquepasquini2/canticos-app.git
+```
+
+Pushes to `master` then trigger production deploys (and branch/PR previews if enabled).
+
+### Environment variables on Vercel
+
+Set under **Settings → Environment Variables** (at least **Production**): `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, plus optional `VITE_GOOGLE_API_KEY`, `VITE_DRIVE_ROOT_FOLDER_ID` / URL, etc. — see **Environment variables** above. Do **not** set `SUPABASE_SERVICE_ROLE_KEY` on Vercel for this SPA. For **Preview** deploys, duplicate the same `VITE_*` keys for the Preview environment if you use PR previews.
+
 ## Features
 
 - **Dashboard** — Next Sunday, stats, recent summaries (admin).
