@@ -2,6 +2,8 @@
 
 Web app for managing the worship music schedule for a Presbyterian Church in Brazil (IP Filadelfia, São Carlos/SP).
 
+Currently running on: https://canticosipfiladelfiasc.vercel.app/
+
 ## Setup
 
 ### 1. Install dependencies
