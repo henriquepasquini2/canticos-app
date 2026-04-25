@@ -10,7 +10,7 @@ import {
   ExternalLink,
 } from 'lucide-react'
 import { useSongStats } from '@/hooks/useSongs'
-import { useRecentSundays, useUpcomingSundays } from '@/hooks/useSundays'
+import { useUpcomingSundays } from '@/hooks/useSundays'
 import { useSuggestions } from '@/hooks/useSuggestions'
 import { useMultiRealtime, REALTIME, LIVE_DATA_POLL_MS } from '@/hooks/useRealtime'
 import { formatDateLong, getNextSunday } from '@/lib/utils'
@@ -47,19 +47,16 @@ function StatCard({
 
 export function Dashboard() {
   const stats = useSongStats()
-  const { sundays: upcoming, refetch: refetchUpcoming } = useUpcomingSundays(1)
-  const { sundays: recent, refetch: refetchRecent } = useRecentSundays(4)
+  const { sundays: upcoming, refetch: refetchUpcoming } = useUpcomingSundays(5)
   const { pendingCount, refetch: refetchSuggestions } = useSuggestions()
 
   const refreshDashboard = useCallback(() => {
     void stats.refetch()
     void refetchUpcoming()
-    void refetchRecent()
     void refetchSuggestions()
   }, [
     stats.refetch,
     refetchUpcoming,
-    refetchRecent,
     refetchSuggestions,
   ])
 
@@ -70,6 +67,7 @@ export function Dashboard() {
   const nextSunday = getNextSunday()
   const nextSundayStr = format(nextSunday, 'yyyy-MM-dd')
   const nextSundayData = upcoming.find((s) => s.date === nextSundayStr)
+  const followingSundays = upcoming.filter((s) => s.date > nextSundayStr).slice(0, 4)
 
   return (
     <div className="space-y-8 max-w-6xl">
@@ -147,7 +145,7 @@ export function Dashboard() {
 
         <div className="rounded-xl border border-border bg-bg-card p-6">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold">Domingos Recentes</h2>
+            <h2 className="text-lg font-semibold">Domingos Seguintes</h2>
             <Link to="/admin/calendario">
               <Button size="sm" variant="ghost">
                 Ver todos <ArrowRight size={14} />
@@ -155,7 +153,7 @@ export function Dashboard() {
             </Link>
           </div>
           <div className="space-y-3">
-            {recent.map((s) => (
+            {followingSundays.map((s) => (
               <Link
                 key={s.id}
                 to={`/admin/domingo/${s.date}`}
@@ -184,9 +182,9 @@ export function Dashboard() {
                 </div>
               </Link>
             ))}
-            {recent.length === 0 && (
+            {followingSundays.length === 0 && (
               <p className="text-sm text-text-muted">
-                Nenhum domingo registrado.
+                Nenhum domingo agendado.
               </p>
             )}
           </div>

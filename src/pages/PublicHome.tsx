@@ -1,7 +1,7 @@
 import { useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowRight, Music, ExternalLink } from 'lucide-react'
-import { useUpcomingSundays, useRecentSundays } from '@/hooks/useSundays'
+import { useUpcomingSundays } from '@/hooks/useSundays'
 import { useMultiRealtime, REALTIME, LIVE_DATA_POLL_MS } from '@/hooks/useRealtime'
 import { formatDateLong, getNextSunday } from '@/lib/utils'
 import { Badge } from '@/components/ui/Badge'
@@ -10,13 +10,11 @@ import { formatSongTitle, DriveLink } from '@/components/songs/SongName'
 import { format } from 'date-fns'
 
 export function PublicHome() {
-  const { sundays: upcoming, refetch: refetchUpcoming } = useUpcomingSundays(1)
-  const { sundays: recent, refetch: refetchRecent } = useRecentSundays(6)
+  const { sundays: upcoming, refetch: refetchUpcoming } = useUpcomingSundays(5)
 
   const refreshHome = useCallback(() => {
     void refetchUpcoming()
-    void refetchRecent()
-  }, [refetchUpcoming, refetchRecent])
+  }, [refetchUpcoming])
 
   useMultiRealtime(REALTIME.home, refreshHome, true, {
     pollIntervalMs: LIVE_DATA_POLL_MS,
@@ -25,6 +23,7 @@ export function PublicHome() {
   const nextSunday = getNextSunday()
   const nextSundayStr = format(nextSunday, 'yyyy-MM-dd')
   const nextSundayData = upcoming.find((s) => s.date === nextSundayStr)
+  const followingSundays = upcoming.filter((s) => s.date > nextSundayStr).slice(0, 4)
 
   return (
     <div className="space-y-8">
@@ -96,10 +95,10 @@ export function PublicHome() {
         )}
       </div>
 
-      {/* Recent Sundays */}
+      {/* Domingos Seguintes */}
       <div>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold">Domingos Recentes</h2>
+          <h2 className="text-lg font-semibold">Domingos Seguintes</h2>
           <Link to="/calendario">
             <Button size="sm" variant="ghost">
               Ver calendário <ArrowRight size={14} />
@@ -107,7 +106,7 @@ export function PublicHome() {
           </Link>
         </div>
         <div className="space-y-3">
-          {recent.map((s) => (
+          {followingSundays.map((s) => (
             <Link
               key={s.id}
               to={`/domingo/${s.date}`}
@@ -134,9 +133,9 @@ export function PublicHome() {
               </div>
             </Link>
           ))}
-          {recent.length === 0 && (
+          {followingSundays.length === 0 && (
             <p className="text-sm text-text-muted text-center py-8">
-              Nenhum domingo registrado ainda.
+              Nenhum domingo agendado.
             </p>
           )}
         </div>
